@@ -1,0 +1,695 @@
+---
+title: "Stage de Maxime Kermarrec (L3-BI)"
+author: "Leslie REGAD et Maxime Kermarrec"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    code_folding: show #hide
+    self_contained: yes
+    fig_caption: yes
+    highlight: pygments #pour les sorties R
+    theme: spacelab
+    toc: yes  #for add table of contents
+    toc_depth: 3
+    toc_float: yes
+    df_print: paged
+    keep_md: yes  #pour garder le .md after run
+  slidy_presentation:
+    smart: no
+    slide_level: 2
+    self_contained: yes
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    highlight: tango
+    incremental: no
+    keep_md: yes
+    smaller: yes
+    theme: cerulean
+    toc: yes
+    widescreen: yes
+  ioslides_presentation:
+    slide_level: 2
+    self_contained: no
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    smaller: yes
+    toc: yes
+    widescreen: yes
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+  beamer_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
+    toc: yes
+font-import: http://fonts.googleapis.com/css?family=Risque
+subtitle: DTest
+font-family: Garamond
+transition: linear
+---
+
+```{r include=FALSE, echo=FALSE, eval=TRUE}
+library(knitr)
+#library(kableExtra)
+# library(formattable)
+options(width = 300)
+# options(encoding = 'UTF-8')
+knitr::opts_chunk$set(
+  fig.width = 7, fig.height = 5, 
+  fig.path = 'figures/07_tests_multiples',
+  fig.align = "center", 
+  size = "tiny", 
+  echo = TRUE, eval = TRUE, 
+  warning = FALSE, message = FALSE, 
+  results = TRUE, comment = "")
+options(scipen = 12) ## Max number of digits for non-scientific notation
+# knitr::asis_output("\\footnotesize")
+```
+
+
+# Objectif
+
+* Travail 1 :
+
+1. Etudier la conservation du packing cristallin dans les 13 structures de PR2 et les 15 structures de PR1
+2. Mettre en relation cette conservation avec les RMSD
+3. Lien entre conservation de l’asymétrie et neqSL ?
+
+* Travail 2 : Comparaison des interfaces PR1 et PR2
+* Travail 3 : Etude de la variabilité structurale de PR1 et PR2 – SA-conf
+* Travail 4 : Etude de la flexibilité de PR1 et PR2 – distance au SL
+
+
+# Semaine 1 : Vendredi 18/01/2018
+
+## Objectifs 
+Etudier la conservation du packing cristallin dans les 11 structures de PR2 et les 15 structures de PR1.
+Pour cela, on va identifier les résidus qui sont : 
+
+* inclus dans le packing cristallin chez toutes (ou la majorité (=80%)) des structures
+* inclus dans le packing cristallin chez toutes (ou la majorité (=80%)) des structures de PR1
+* inclus dans le packing cristallin chez toutes (ou la majorité (=80%)) des structures de PR2
+
+
+## Données
+
+* 26 fichiers qui contient les atomes impliqués dans le packing cristallin pour chaque structure de PR1 et PR2
+* le type de PR pour chaque code PDB
+
+
+PDB code | type | remarque
+---------|------|---------
+3s45 | PR2 |
+1hhp | PR1 |
+1hih | PR1 |
+1hii | PR2 |
+1hiv | PR1 |
+1hpv | PR1 |
+1hsh | PR2 |
+1hsi | PR2 | 
+1ivp | PR2 |
+1sdt | PR1 | (peu avoir des pbl de numérotation des résidus)
+2hb3 | PR1 |
+2hb4 | PR1 | (monomère)
+2hpe | PR2 |
+2hpf | PR2 |
+2ien | PR1 |  (peu avoir des pbl de numérotation des résidus)
+2mip | PR2 |
+2nph | PR1 |  (peu avoir des pbl de numérotation des résidus)
+3phv | PR1 | (monomère)
+2z4o | PR1 |  (peu avoir des pbl de numérotation des résidus)
+3ebz | PR2 |  (peu avoir des pbl de numérotation des résidus)
+3ec0 | PR2 |  (peu avoir des pbl de numérotation des résidus)
+3ecg | PR2 | (peu avoir des pbl de numérotation des résidus)
+3ekv | PR1 |
+3nu3 | PR1 |  (peu avoir des pbl de numérotation des résidus)
+4hla | PR1 |
+4ll3 | PR1 |
+1hsh | PR2 | 
+
+## To do
+
+### Création d'une matrice sous R qui contient en lignes les protéines et en colonnes les positions
+
+La case de la matrice contient : 
+
+* 1 quand le résidu a au moins 1 atomes impliqués dans le packing dans la structure, 
+* 0 sinon.
+
+
+Attention, 
+
+* certaines structures sont des monomères 
+* certaines structures ont des mauvaises numérotations des résidus. Normalement les résidus sont numérotés de 1 à 99 pour la chaîne A et la chaîne B. Certaines structures ont les résidus de la chaîne B numérotés de 101 à 109.
+Ainsi le résidus 101B = 1B
+
+
+1. Etape 1 : récupération de la liste des fichiers PDB
+```{r}
+listFile = dir("fileByProt3/")
+```
+
+2. Exemple sur le premier fichier
+
+```{r}
+filein = listFile[1]
+M = read.table(paste("fileByProt3",filein,sep="/"))
+listAtom = unique(paste(as.character(M[,6]), as.character(M[,5]), sep="_"))
+listAtomSyn = listAtom
+listAtomSyn
+
+```
+
+
+Récupération de la liste des résidus pour chaque protéine
+
+```{r listRes}
+v1 =(1:26)
+v2 =(1:159)
+
+for (i in v1){
+  filein = listFile[i]
+  M = read.table(paste("fileByProt3",filein,sep="/"))
+  listAtom = unique(paste(as.character(M[,6]), as.character(M[,5]), sep="_"))
+  listAtomSyn = unique(c(listAtom,listAtomSyn))
+}
+
+listAtomSyn
+
+
+
+```
+
+
+```{r}
+
+```
+
+
+*Remarques* : 
+
+Faire la matrice
+
+*Remarques*
+
+Pour simplifier la matrice, il faudrait donner des acronymes aux trois dernières lignes pour simplifier les rownames : 
+* NbStructinPC : Nb de structure dans lequel le résidu est implique",
+* NbStructinPC.PR1 :  "Nb de structure PR1 dans lequel le résidu est implique", 
+* NbStructinPC.PR2 : "Nb de structure PR2 dans lequel le résidu est implique.
+
+
+```{r creationMat}
+
+v3 = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
+
+type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
+
+names(type) =c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
+
+matrice <- matrix(0, nrow=length(v3), ncol=length(listAtomSyn))
+
+rownames(matrice) <- v3
+colnames(matrice) <- listAtomSyn
+
+for (i in 1:length(v1)) {
+  filein = listFile[i]
+  M = read.table(paste("fileByProt3",filein,sep="/"))
+  Atome <- unique(c(paste(as.character(M[,6]), as.character(M[,5]), sep="_")))
+  for (j in 1:length(v2)) {
+    for (y in 1:length(Atome)) {
+      if ((listAtomSyn[j]) == (Atome[y])){
+        matrice[i,j] = 1
+      }
+    }
+  }
+}
+
+residue = colnames(matrice)
+resA = residue[grep("_A", residue)]
+resA_ssA = as.numeric(gsub("_A","", resA))
+names(resA_ssA) = resA
+
+sort.resA = names(sort(resA_ssA))
+
+resB = residue[grep("_B", residue)]
+resB_ssB = as.numeric(gsub("_B","", resB))
+names(resB_ssB) = resB
+
+sort.resB = names(sort(resB_ssB))
+
+sort.res = c(sort.resA, sort.resB)
+matrice.sort = matrice[,sort.res]
+
+matrice  = matrice.sort
+matrice
+
+
+
+```
+
+
+Solution 2 : 
+
+```{r creationMatLR}
+
+v3 = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3","* NbStructinPC", "NbStructinPC.PR1", "NbStructinPC.PR2Nb")
+
+matrice2 <- matrix(0, nrow=length(v3), ncol=length(listAtomSyn))
+rownames(matrice2) <- v3
+colnames(matrice2) <- listAtomSyn
+
+
+
+for (i in 1:length(v1)) {
+  filein = listFile[i]
+  M = read.table(paste("fileByProt3",filein,sep="/"))
+  residue <- unique(c(paste(as.character(M[,6]), as.character(M[,5]), sep="_")))
+  pdbCode <- unlist(strsplit(filein,"_"))[1]
+  matrice2[pdbCode, residue] = 1
+} 
+
+matrice
+```
+
+
+
+### Coloration de la matrice
+Utilisation la commande `pheatmap` du package `pheatmap`
+
+```{r colorMat }
+library(pheatmap)
+?pheatmap
+pheatmap::pheatmap(matrice)
+pheatmap(matrice[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
+```
+
+
+### Calculer le nombre de structure dans lequel un résidu est impliqué dans le packing cristallin 
+Le  nombre de structure dans lequel un résidu est impliqué dans le packing cristallin = la somme des colonnes de la matrice
+
+1. Calculer le nombre de structure dans lequel un résidu est impliqué dans le packing cristallin
+
+
+```{r}
+
+v4 = c("NbStructinPC","NbStructinPC.PR1","NbStructinPC.PR2")
+
+matriceStruct <- matrix(0, nrow=length(v4), ncol=length(listAtomSyn))
+
+rownames(matriceStruct) <- v4
+colnames(matriceStruct) <- sort.res
+
+
+for (i in 1:length(v2)){
+  y = 0
+  for (j in 1:length(v3)) {
+    if (matrice[j,i] == 1){
+        y = y+1
+        matriceStruct[1,i] = y
+    }
+  }
+}
+matriceStruct
+```
+```{r}
+type = matrice[,ncol(matrice)]
+names(type)
+#matrice[names(which(type=="PR2")),]
+```
+
+```{r}
+matrice2 = matrice[,-ncol(matrice)]
+```
+
+
+
+
+```{r}
+NbStructinPC = apply(matrice[1:26,],2,sum)
+sort(NbStructinPC)
+```
+
+D'après ces résultats on voit que le résidus 6_A est impliqués dans le packing cristallin dans toutes les structures.
+
+D'autres résidus sont retrouvés dans la majorité des structures (>80%) : `names(which(NbStructinPC/26 > 0.8))`
+```{r}
+names(which(NbStructinPC/26 > 0.8))
+```
+
+
+2. Représenter ces valeurs graphiquement
+
+```{r}
+v6=(1:159)
+
+for (i in 1:length(listAtomSyn)) {
+  v6[i] = matriceStruct[1,i]
+}
+?hist
+hist(v6,xlab = matriceStruct[1,])
+```
+
+
+3. Calculer la moyenne et écart type de ce nombre
+
+```{r}
+sommeStruct = apply(matriceStruct,1,sum)
+sommeStructPC.PR1 = sommeStruct[1]
+
+moyennePC = (sommeStructPC)/(length(NbStructinPC))
+
+a = 0
+for (i in 1:length(NbStructinPC)) {
+  a = a + ((NbStructinPC[i] - moyennePC)*(NbStructinPC[i] - moyennePC))
+}
+
+ecarttypePC = sqrt(a/(length(NbStructinPC)))
+```
+
+
+
+
+### Calculer le nombre de structure dans lequel un résidu est impliqué dans le packing cristallin pour les PR1
+
+1. Calculer le nombre de structure dans lequel un résidu est impliqué dans le packing cristallin pour les PR1
+
+
+```{r}
+
+type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
+
+names(type) =c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
+
+
+##version courte
+NbStructinPC = apply(matrice,2,sum)
+
+ind.PR2 = names(which(type == "PR2"))
+NbStructinPC.PR2 = apply(matrice[ind.PR2,],2,sum)
+
+ind.PR1 = names(which(type == "PR1"))
+NbStructinPC.PR1 = apply(matrice[ind.PR1,],2,sum)
+
+matriceStruct = rbind(NbStructinPC,NbStructinPC.PR1,NbStructinPC.PR2)
+matriceStruct
+###version un peu longue
+
+for (i in 1:length(v2)){
+  y = 0
+  for (j in 1:length(v3)) {
+    if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR1")){
+        y = y+1
+        
+    }
+  matriceStruct[2,i] = y
+  }
+}
+matriceStruct
+```
+
+
+2. Représenter ces valeurs graphiquement
+
+```{r}
+
+```
+
+
+3. Calculer la moyenne et écart type de ce nombre
+
+```{r}
+sommeStruct = apply(matriceStruct,1,sum)
+sommeStructPC.PR1 = sommeStruct[2]
+
+moyennePC.PR1 = (sommeStructPC.PR1)/(length(NbStructinPC.PR1))
+
+a = 0
+for (i in 1:length(NbStructinPC.PR1)) {
+  a = a + ((NbStructinPC.PR1[i] - moyennePC.PR1)*(NbStructinPC.PR1[i] - moyennePC.PR1))
+}
+
+ecarttypePC.PR1 = sqrt(a/(length(NbStructinPC.PR1)))
+```
+
+
+### Calculer le nombre de structure dans lequel un résidu est impliqué dans le packing cristallin pour les PR2
+
+1. Calculer le nombre de structure dans lequel un résidu est impliqué dans le packing cristallin pour les PR2
+
+
+```{r}
+
+for (i in 1:length(v2)){
+  y = 0
+  for (j in 1:length(v3)) {
+    if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR2")){
+        y = y+1
+        
+    }
+  matriceStruct[3,i] = y
+  }
+}
+matriceStruct
+
+```
+
+2. Représenter ces valeurs graphiquement
+
+```{r}
+
+```
+
+
+3. Calculer la moyenne et écart type de ce nombre
+
+```{r}
+sommeStruct = apply(matriceStruct,1,sum)
+sommeStructPC.PR2 = sommeStruct[3]
+
+moyennePC.PR2 = (sommeStructPC.PR2)/(length(NbStructinPC.PR2))
+
+a = 0
+for (i in 1:length(NbStructinPC.PR2)) {
+  a = a + ((NbStructinPC.PR2[i] - moyennePC.PR2)*(NbStructinPC.PR2[i] - moyennePC.PR2))
+}
+
+ecarttypePC.PR2 = sqrt(a/(length(NbStructinPC.PR2)))
+```
+
+
+### Déterminer les résidus impliqués dans le packing cristallin dans toutes les structures
+
+
+### Déterminer les résidus impliqués dans le packing cristallin dans toutes les structures de PR1
+
+
+### Déterminer les résidus impliqués dans le packing cristallin dans toutes les structures de PR2
+
+
+###Etudier le lien entre la conservation des résidus impliqués dans le packing cristallin et l'espace cristallo des structures
+
+1. Déterminer l'espace cristallographique de chaque structure en allant sur la site de la PDB (rcsb.org)
+
+```{r}
+
+```
+
+
+
+
+
+### pour tous les résidus : Est-ce des atomes des chaines latérales ou du backbone qui sont impliqués dans le packing.
+
+```{r}
+v5 = c("Backbone","ChaineLat")
+v6 = 1:6039
+sort.res
+
+matrice3 <- matrix(0, nrow=length(v5), ncol=length(v2))
+
+rownames(matrice3) <- v5
+colnames(matrice3) <- sort.res
+
+matrice3
+
+listAtomSyn = c()
+for (i in v1){
+  filein = listFile[i]
+  N = read.table(paste("fileByProt3",filein,sep="/"))
+  listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
+  listAtomSyn = (c(listAtom,listAtomSyn))
+}
+
+listAtomSyn2 = c()
+
+for (i in v1){
+  filein = listFile[i]
+  N = read.table(paste("fileByProt3",filein,sep="/"))
+  listAtom = (paste(as.character(N[,3])))
+  listAtomSyn2 = (c(listAtom,listAtomSyn2))
+}
+
+names(listAtomSyn) = listAtomSyn2
+sort.res
+
+for (j in 1:length(sort.res)) {
+  for (k in 1:length(v6)) {
+    
+    if (sort.res[j] == listAtomSyn[k]){
+    
+      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+       
+       matrice3[1,sort.res[j]] = matrice3[1,sort.res[j]] + 1
+       }else{
+         matrice3[2,sort.res[j]] = matrice3[2,sort.res[j]] + 1
+       }
+    }
+  }
+}
+
+matrice3
+```
+
+
+```{r}
+v5 = c("Backbone","ChaineLat")
+v6 = 1:3589
+sort.res
+
+matrice3PR1 <- matrix(0, nrow=length(v5), ncol=length(v2))
+
+rownames(matrice3PR1) <- v5
+colnames(matrice3PR1) <- sort.res
+
+matrice3PR1
+
+type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
+
+names(type) =c("1hhp_packCryst.pdb","1hih_packCryst.pdb","1hii_packCryst.pdb","1hiv_packCryst.pdb","1hpv_packCryst.pdb","1hsh_packCryst.pdb","1hsi_packCryst.pdb","1ivp_packCryst.pdb","1sdt_packCryst.pdb","2hb3_packCryst.pdb","2hb4_packCryst.pdb","2hpe_packCryst.pdb","2hpf_packCryst.pdb","2ien_packCryst.pdb","2mip_packCryst.pdb","2nph_packCryst.pdb","2z4o_packCryst.pdb","3ebz_packCryst.pdb","3ec0_packCryst.pdb","3ecg_packCryst.pdb","3ekv_packCryst.pdb","3nu3_packCryst.pdb","3phv_packCryst.pdb","3s45_packCryst.pdb","4hla_packCryst.pdb","4ll3_packCryst.pdb")
+ind.PR1 = names(which(type == "PR1"))
+
+listAtomSyn = c()
+for (j in v1) {
+  for (i in 1:length(ind.PR1)){
+    filein = listFile[j]
+    N = read.table(paste("fileByProt3",filein,sep="/"))
+    if((filein) == (ind.PR1[i])){
+      listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
+      listAtomSyn = (c(listAtom,listAtomSyn))
+    }
+  }
+}
+listAtomSyn2 = c()
+
+for (j in v1){
+  for (i in 1:length(ind.PR1)) {
+    filein = listFile[j]
+    N = read.table(paste("fileByProt3",filein,sep="/"))
+    if((filein) == (ind.PR1[i])){
+      
+      listAtom = (paste(as.character(N[,3])))
+      listAtomSyn2 = (c(listAtom,listAtomSyn2))
+    }
+  }
+}
+
+names(listAtomSyn) = listAtomSyn2
+
+for (j in 1:length(sort.res)) {
+  for (k in 1:length(v6)) {
+    
+    if (sort.res[j] == listAtomSyn[k]){
+    
+      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+       
+       matrice3PR1[1,sort.res[j]] = matrice3PR1[1,sort.res[j]] + 1
+       }else{
+         matrice3PR1[2,sort.res[j]] = matrice3PR1[2,sort.res[j]] + 1
+       }
+    }
+  }
+}
+
+matrice3PR1
+```
+
+
+```{r}
+v5 = c("Backbone","ChaineLat")
+v6 = 1:2450
+sort.res
+
+matrice3PR2 <- matrix(0, nrow=length(v5), ncol=length(v2))
+
+rownames(matrice3PR2) <- v5
+colnames(matrice3PR2) <- sort.res
+
+matrice3PR2
+
+type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
+
+names(type) =c("1hhp_packCryst.pdb","1hih_packCryst.pdb","1hii_packCryst.pdb","1hiv_packCryst.pdb","1hpv_packCryst.pdb","1hsh_packCryst.pdb","1hsi_packCryst.pdb","1ivp_packCryst.pdb","1sdt_packCryst.pdb","2hb3_packCryst.pdb","2hb4_packCryst.pdb","2hpe_packCryst.pdb","2hpf_packCryst.pdb","2ien_packCryst.pdb","2mip_packCryst.pdb","2nph_packCryst.pdb","2z4o_packCryst.pdb","3ebz_packCryst.pdb","3ec0_packCryst.pdb","3ecg_packCryst.pdb","3ekv_packCryst.pdb","3nu3_packCryst.pdb","3phv_packCryst.pdb","3s45_packCryst.pdb","4hla_packCryst.pdb","4ll3_packCryst.pdb")
+ind.PR2 = names(which(type == "PR2"))
+
+listAtomSyn = c()
+for (j in v1) {
+  for (i in 1:length(ind.PR2)){
+    filein = listFile[j]
+    if((filein) == (ind.PR2[i])){
+      N = read.table(paste("fileByProt3",filein,sep="/"))
+      listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
+      listAtomSyn = (c(listAtom,listAtomSyn))
+    }
+  }
+}
+listAtomSyn2 = c()
+
+for (j in v1){
+  for (i in 1:length(ind.PR2)) {
+    filein = listFile[j]
+    if((filein) == (ind.PR2[i])){
+      N = read.table(paste("fileByProt3",filein,sep="/"))
+      listAtom = (paste(as.character(N[,3])))
+      listAtomSyn2 = (c(listAtom,listAtomSyn2))
+    }
+  }
+}
+
+names(listAtomSyn) = listAtomSyn2
+
+for (j in 1:length(sort.res)) {
+  for (k in 1:length(v6)) {
+    
+    if (sort.res[j] == listAtomSyn[k]){
+    
+      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+       
+       matrice3PR2[1,sort.res[j]] = matrice3PR2[1,sort.res[j]] + 1
+       }else{
+         matrice3PR2[2,sort.res[j]] = matrice3PR2[2,sort.res[j]] + 1
+       }
+    }
+  }
+}
+
+matrice3PR2
+
+
+matricetotale = matrice3PR1 + matrice3PR2
+```
+
