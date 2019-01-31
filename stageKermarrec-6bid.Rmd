@@ -256,10 +256,7 @@ sort.res = c(sort.resA, sort.resB)
 matrice.sort = matrice[,sort.res]
 
 matrice  = matrice.sort
-matrice
-
-
-
+dim(matrice)
 ```
 
 
@@ -283,7 +280,8 @@ for (i in 1:length(v1)) {
   matrice2[pdbCode, residue] = 1
 } 
 
-matrice
+dim(matrice)
+dim(matrice2)
 ```
 
 
@@ -317,14 +315,14 @@ colnames(matriceStruct) <- sort.res
 
 for (i in 1:length(v2)){
   y = 0
-  for (j in 1:length(v3)) {
+  for (j in 1:length(v3[1:26])) {
     if (matrice[j,i] == 1){
         y = y+1
         matriceStruct[1,i] = y
     }
   }
 }
-matriceStruct
+dim(matriceStruct)
 ```
 ```{r}
 type = matrice[,ncol(matrice)]
@@ -346,14 +344,12 @@ sort(NbStructinPC)
 
 D'après ces résultats on voit que le résidus 6_A est impliqués dans le packing cristallin dans toutes les structures.
 
-D'autres résidus sont retrouvés dans la majorité des structures (>80%) : `names(which(NbStructinPC/26 > 0.8))`
-```{r}
-names(which(NbStructinPC/26 > 0.8))
-```
+D'autres résidus sont retrouvés dans la majorité des structures (>80%) : `r names(which(NbStructinPC/26 > 0.8))`
 
 
 2. Représenter ces valeurs graphiquement
 
+Pourquoi refaire un vecteur ???
 ```{r}
 v6=(1:159)
 
@@ -364,23 +360,32 @@ for (i in 1:length(listAtomSyn)) {
 hist(v6,xlab = matriceStruct[1,])
 ```
 
+On va aussi faire un barplot pour voir le nombre pour chaque résidus
+```{r}
+barplot(NbStructinPC, las = 2, cex.names  = 0.6)
+```
+ On voit des différences dans les chaînes A et B
 
 3. Calculer la moyenne et écart type de ce nombre
 
+Pourquoi vous n'utlisez pas les commandes `mean()` et `sd()` ?
+ 
+
 ```{r}
-sommeStruct = apply(matriceStruct,1,sum)
-sommeStructPC.PR1 = sommeStruct[1]
+#sommeStruct = apply(matriceStruct,1,sum)
+#sommeStructPC.PR1 = sommeStruct[1]
 
-moyennePC = (sommeStructPC)/(length(NbStructinPC))
+#moyennePC = (sommeStructPC)/(length(NbStructinPC))
+mean(matriceStruct[1,])
+sd(matriceStruct[1,])
 
-a = 0
-for (i in 1:length(NbStructinPC)) {
-  a = a + ((NbStructinPC[i] - moyennePC)*(NbStructinPC[i] - moyennePC))
-}
+#a = 0
+#for (i in 1:length(NbStructinPC)) {
+#  a = a + ((NbStructinPC[i] - moyennePC)*(NbStructinPC[i] - moyennePC))
+#}
 
-ecarttypePC = sqrt(a/(length(NbStructinPC)))
+#ecarttypePC = sqrt(a/(length(NbStructinPC)))
 ```
-
 
 
 
@@ -411,7 +416,7 @@ matriceStruct
 
 for (i in 1:length(v2)){
   y = 0
-  for (j in 1:length(v3)) {
+  for (j in 1:length(v3[1:26])) {
     if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR1")){
         y = y+1
         
@@ -419,8 +424,9 @@ for (i in 1:length(v2)){
   matriceStruct[2,i] = y
   }
 }
-matriceStruct
+
 ```
+Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de v3
 
 
 2. Représenter ces valeurs graphiquement
@@ -433,17 +439,8 @@ matriceStruct
 3. Calculer la moyenne et écart type de ce nombre
 
 ```{r}
-sommeStruct = apply(matriceStruct,1,sum)
-sommeStructPC.PR1 = sommeStruct[2]
-
-moyennePC.PR1 = (sommeStructPC.PR1)/(length(NbStructinPC.PR1))
-
-a = 0
-for (i in 1:length(NbStructinPC.PR1)) {
-  a = a + ((NbStructinPC.PR1[i] - moyennePC.PR1)*(NbStructinPC.PR1[i] - moyennePC.PR1))
-}
-
-ecarttypePC.PR1 = sqrt(a/(length(NbStructinPC.PR1)))
+mean(matriceStruct["NbStructinPC.PR1",])
+sd(matriceStruct["NbStructinPC.PR1",])
 ```
 
 
@@ -456,7 +453,7 @@ ecarttypePC.PR1 = sqrt(a/(length(NbStructinPC.PR1)))
 
 for (i in 1:length(v2)){
   y = 0
-  for (j in 1:length(v3)) {
+  for (j in 1:length(v3[1:26])) {
     if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR2")){
         y = y+1
         
@@ -464,9 +461,11 @@ for (i in 1:length(v2)){
   matriceStruct[3,i] = y
   }
 }
-matriceStruct
+
 
 ```
+
+Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de v3
 
 2. Représenter ces valeurs graphiquement
 
@@ -478,18 +477,27 @@ matriceStruct
 3. Calculer la moyenne et écart type de ce nombre
 
 ```{r}
-sommeStruct = apply(matriceStruct,1,sum)
-sommeStructPC.PR2 = sommeStruct[3]
-
-moyennePC.PR2 = (sommeStructPC.PR2)/(length(NbStructinPC.PR2))
-
-a = 0
-for (i in 1:length(NbStructinPC.PR2)) {
-  a = a + ((NbStructinPC.PR2[i] - moyennePC.PR2)*(NbStructinPC.PR2[i] - moyennePC.PR2))
-}
-
-ecarttypePC.PR2 = sqrt(a/(length(NbStructinPC.PR2)))
+mean(matriceStruct["NbStructinPC.PR2",])
+sd(matriceStruct["NbStructinPC.PR2",])
 ```
+
+4. Comparer les résultats obtenus sur PR1 et PR2
+
+Représentation du nombre de structures de PR1 ayant chaque résidu comme asymmétrique en fonction  du nombre de structures de PR1 ayant chaque résidu comme asymmétrique
+
+<span style="color: #8f8f8f"> Refaire ce graphique en % car nombre PR1 n'est pas le même que le nombre de PR2 </span>
+```{r}
+plot(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",], pch = 19,
+     xlab="nombre de structures de PR1",
+     ylab="nombre de structures de PR2")
+text(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",],
+     colnames(matriceStruct), pos=3, offset=0.3, cex=0.5 )
+
+```
+
+
+On calcule ensuite la corrélation entre ces deux variables
+cor(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",])
 
 
 ### Déterminer les résidus impliqués dans le packing cristallin dans toutes les structures
@@ -517,7 +525,7 @@ ecarttypePC.PR2 = sqrt(a/(length(NbStructinPC.PR2)))
 
 ```{r}
 v5 = c("Backbone","ChaineLat")
-v6 = 1:6039
+v6 = 1:6039  ##Il faudrait automatiser ces valeurs
 sort.res
 
 matrice3 <- matrix(0, nrow=length(v5), ncol=length(v2))
@@ -565,10 +573,11 @@ for (j in 1:length(sort.res)) {
 matrice3
 ```
 
+Il faudrait donner des noms de variables plus claires, qui permettent de comprendre ce que contient le vecteur, la matrice, ....
 
 ```{r}
 v5 = c("Backbone","ChaineLat")
-v6 = 1:3589
+v6 = 1:3589   # d'où vient le 3589????
 sort.res
 
 matrice3PR1 <- matrix(0, nrow=length(v5), ncol=length(v2))
@@ -583,6 +592,8 @@ type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2"
 names(type) =c("1hhp_packCryst.pdb","1hih_packCryst.pdb","1hii_packCryst.pdb","1hiv_packCryst.pdb","1hpv_packCryst.pdb","1hsh_packCryst.pdb","1hsi_packCryst.pdb","1ivp_packCryst.pdb","1sdt_packCryst.pdb","2hb3_packCryst.pdb","2hb4_packCryst.pdb","2hpe_packCryst.pdb","2hpf_packCryst.pdb","2ien_packCryst.pdb","2mip_packCryst.pdb","2nph_packCryst.pdb","2z4o_packCryst.pdb","3ebz_packCryst.pdb","3ec0_packCryst.pdb","3ecg_packCryst.pdb","3ekv_packCryst.pdb","3nu3_packCryst.pdb","3phv_packCryst.pdb","3s45_packCryst.pdb","4hla_packCryst.pdb","4ll3_packCryst.pdb")
 ind.PR1 = names(which(type == "PR1"))
 
+
+#ici je ne comprends pas pourquoi vous faites une double boucle
 listAtomSyn = c()
 for (j in v1) {
   for (i in 1:length(ind.PR1)){
@@ -594,6 +605,19 @@ for (j in v1) {
     }
   }
 }
+
+### j'aurais fait comme ca, mais je n'ai pas les mêmes résultats que vous
+listAtomSyn2 = NULL
+
+for(filein in ind.PR1){
+  packPDB.file = read.table(paste("fileByProt3",filein,sep="/"))
+  listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
+  listAtomSyn2 = c(listAtom,listAtomSyn2)
+}
+
+
+
+
 listAtomSyn2 = c()
 
 for (j in v1){
