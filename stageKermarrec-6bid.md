@@ -1,7 +1,7 @@
 ---
 title: "Stage de Maxime Kermarrec (L3-BI)"
 author: "Leslie REGAD et Maxime Kermarrec"
-date: '2019-01-31'
+date: '2019-02-01'
 output:
   html_document:
     code_folding: show #hide
@@ -593,7 +593,16 @@ text(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",],
 
 
 On calcule ensuite la corrélation entre ces deux variables
+
+
+```r
 cor(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",])
+```
+
+```
+[1] 0.465773
+```
+
 
 
 ### Déterminer les résidus impliqués dans le packing cristallin dans toutes les structures

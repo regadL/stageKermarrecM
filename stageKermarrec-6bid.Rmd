@@ -497,7 +497,11 @@ text(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",],
 
 
 On calcule ensuite la corrélation entre ces deux variables
+
+```{r}
 cor(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",])
+```
+
 
 
 ### Déterminer les résidus impliqués dans le packing cristallin dans toutes les structures
@@ -560,7 +564,8 @@ for (j in 1:length(sort.res)) {
     
     if (sort.res[j] == listAtomSyn[k]){
     
-      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+      #if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+      if (is.element(listAtomSyn2[k], list.bk)==TRUE){
        
        matrice3[1,sort.res[j]] = matrice3[1,sort.res[j]] + 1
        }else{
@@ -571,9 +576,21 @@ for (j in 1:length(sort.res)) {
 }
 
 matrice3
+
+
+
+
 ```
 
-Il faudrait donner des noms de variables plus claires, qui permettent de comprendre ce que contient le vecteur, la matrice, ....
+
+Visualisation du nombre d'atomes impliqués dans le packing cristallin
+```{r}
+pheatmap(matrice3, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 250), col = c("white", "wheat", "yellow", "orange", "red"))
+```
+
+
+A refaire pour le nombre de protéine : matrice avec des 0 et 1
+
 
 ```{r}
 v5 = c("Backbone","ChaineLat")
@@ -595,21 +612,23 @@ ind.PR1 = names(which(type == "PR1"))
 
 #ici je ne comprends pas pourquoi vous faites une double boucle
 listAtomSyn = c()
+pp = NULL
 for (j in v1) {
   for (i in 1:length(ind.PR1)){
     filein = listFile[j]
     N = read.table(paste("fileByProt3",filein,sep="/"))
     if((filein) == (ind.PR1[i])){
+      pp = c(pp, filein)
       listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
       listAtomSyn = (c(listAtom,listAtomSyn))
     }
   }
 }
 
-### j'aurais fait comme ca, mais je n'ai pas les mêmes résultats que vous
+### j'aurais fait comme ca, mais je n'ai pas les mêmes résultats que vous : ca ne marche pas.....
 listAtomSyn2 = NULL
 
-for(filein in ind.PR1){
+for(filein in names(type)){
   packPDB.file = read.table(paste("fileByProt3",filein,sep="/"))
   listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
   listAtomSyn2 = c(listAtom,listAtomSyn2)
@@ -694,6 +713,8 @@ for (j in v1){
   }
 }
 
+
+list.bk = c("C","CA","N","O")
 names(listAtomSyn) = listAtomSyn2
 
 for (j in 1:length(sort.res)) {
@@ -701,7 +722,8 @@ for (j in 1:length(sort.res)) {
     
     if (sort.res[j] == listAtomSyn[k]){
     
-      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+      #if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+      if (is.element(listAtomSyn2[k], list.bk)==TRUE){
        
        matrice3PR2[1,sort.res[j]] = matrice3PR2[1,sort.res[j]] + 1
        }else{
@@ -710,6 +732,12 @@ for (j in 1:length(sort.res)) {
     }
   }
 }
+
+
+
+
+
+
 
 matrice3PR2
 
