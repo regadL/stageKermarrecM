@@ -524,6 +524,7 @@ cor(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",])
 ### pour tous les résidus : Est-ce des atomes des chaines latérales ou du backbone qui sont impliqués dans le packing.
 
 ```{r}
+list.bk = c("C","O","N","CA")
 v5 = c("Backbone","ChaineLat")
 v6 = 1:6039  ##Il faudrait automatiser ces valeurs
 sort.res
