@@ -571,6 +571,7 @@ for (j in 1:length(sort.res)) {
 }
 
 matrice3
+
 ```
 
 Il faudrait donner des noms de variables plus claires, qui permettent de comprendre ce que contient le vecteur, la matrice, ....

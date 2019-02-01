@@ -312,7 +312,7 @@ v4 = c("NbStructinPC","NbStructinPC.PR1","NbStructinPC.PR2")
 matriceStruct <- matrix(0, nrow=length(v4), ncol=length(listAtomSyn))
 
 rownames(matriceStruct) <- v4
-colnames(matriceStruct) <- listAtomSyn
+colnames(matriceStruct) <- sort.res
 
 
 for (i in 1:length(v2)){
@@ -325,7 +325,6 @@ for (i in 1:length(v2)){
   }
 }
 matriceStruct
-
 ```
 ```{r}
 type = matrice[,ncol(matrice)]
@@ -369,12 +368,17 @@ hist(v6,xlab = matriceStruct[1,])
 3. Calculer la moyenne et écart type de ce nombre
 
 ```{r}
-a=0
-for (i in length(v2)) {
-  matriceStruct[1,i] = y
-  a = a+y
+sommeStruct = apply(matriceStruct,1,sum)
+sommeStructPC.PR1 = sommeStruct[1]
+
+moyennePC = (sommeStructPC)/(length(NbStructinPC))
+
+a = 0
+for (i in 1:length(NbStructinPC)) {
+  a = a + ((NbStructinPC[i] - moyennePC)*(NbStructinPC[i] - moyennePC))
 }
 
+ecarttypePC = sqrt(a/(length(NbStructinPC)))
 ```
 
 
@@ -386,18 +390,6 @@ for (i in length(v2)) {
 
 
 ```{r}
-
-for (i in 1:length(v2)){
-  y = 0
-  for (j in 1:length(v3)) {
-    if (matrice[j,i] == 1){
-        y = y+1
-        matriceStruct[1,i] = y
-    }
-  }
-}
-matriceStruct
-
 
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
 
@@ -414,7 +406,7 @@ ind.PR1 = names(which(type == "PR1"))
 NbStructinPC.PR1 = apply(matrice[ind.PR1,],2,sum)
 
 matriceStruct = rbind(NbStructinPC,NbStructinPC.PR1,NbStructinPC.PR2)
-
+matriceStruct
 ###version un peu longue
 
 for (i in 1:length(v2)){
@@ -427,7 +419,6 @@ for (i in 1:length(v2)){
   matriceStruct[2,i] = y
   }
 }
-
 matriceStruct
 ```
 
@@ -442,9 +433,17 @@ matriceStruct
 3. Calculer la moyenne et écart type de ce nombre
 
 ```{r}
-for (i in ) {
-  
+sommeStruct = apply(matriceStruct,1,sum)
+sommeStructPC.PR1 = sommeStruct[2]
+
+moyennePC.PR1 = (sommeStructPC.PR1)/(length(NbStructinPC.PR1))
+
+a = 0
+for (i in 1:length(NbStructinPC.PR1)) {
+  a = a + ((NbStructinPC.PR1[i] - moyennePC.PR1)*(NbStructinPC.PR1[i] - moyennePC.PR1))
 }
+
+ecarttypePC.PR1 = sqrt(a/(length(NbStructinPC.PR1)))
 ```
 
 
@@ -458,14 +457,15 @@ for (i in ) {
 for (i in 1:length(v2)){
   y = 0
   for (j in 1:length(v3)) {
-    if (matrice[j,i] == 1 && matrice[j,] == matrice[names(which(type=="PR2")),]){
+    if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR2")){
         y = y+1
-        matriceStruct[3,i] = y
+        
     }
+  matriceStruct[3,i] = y
   }
 }
-
 matriceStruct
+
 ```
 
 2. Représenter ces valeurs graphiquement
@@ -478,7 +478,17 @@ matriceStruct
 3. Calculer la moyenne et écart type de ce nombre
 
 ```{r}
+sommeStruct = apply(matriceStruct,1,sum)
+sommeStructPC.PR2 = sommeStruct[3]
 
+moyennePC.PR2 = (sommeStructPC.PR2)/(length(NbStructinPC.PR2))
+
+a = 0
+for (i in 1:length(NbStructinPC.PR2)) {
+  a = a + ((NbStructinPC.PR2[i] - moyennePC.PR2)*(NbStructinPC.PR2[i] - moyennePC.PR2))
+}
+
+ecarttypePC.PR2 = sqrt(a/(length(NbStructinPC.PR2)))
 ```
 
 
@@ -497,5 +507,189 @@ matriceStruct
 
 ```{r}
 
+```
+
+
+
+
+
+### pour tous les résidus : Est-ce des atomes des chaines latérales ou du backbone qui sont impliqués dans le packing.
+
+```{r}
+v5 = c("Backbone","ChaineLat")
+v6 = 1:6039
+sort.res
+
+matrice3 <- matrix(0, nrow=length(v5), ncol=length(v2))
+
+rownames(matrice3) <- v5
+colnames(matrice3) <- sort.res
+
+matrice3
+
+listAtomSyn = c()
+for (i in v1){
+  filein = listFile[i]
+  N = read.table(paste("fileByProt3",filein,sep="/"))
+  listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
+  listAtomSyn = (c(listAtom,listAtomSyn))
+}
+
+listAtomSyn2 = c()
+
+for (i in v1){
+  filein = listFile[i]
+  N = read.table(paste("fileByProt3",filein,sep="/"))
+  listAtom = (paste(as.character(N[,3])))
+  listAtomSyn2 = (c(listAtom,listAtomSyn2))
+}
+
+names(listAtomSyn) = listAtomSyn2
+sort.res
+
+for (j in 1:length(sort.res)) {
+  for (k in 1:length(v6)) {
+    
+    if (sort.res[j] == listAtomSyn[k]){
+    
+      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+       
+       matrice3[1,sort.res[j]] = matrice3[1,sort.res[j]] + 1
+       }else{
+         matrice3[2,sort.res[j]] = matrice3[2,sort.res[j]] + 1
+       }
+    }
+  }
+}
+
+matrice3
+```
+
+
+```{r}
+v5 = c("Backbone","ChaineLat")
+v6 = 1:3589
+sort.res
+
+matrice3PR1 <- matrix(0, nrow=length(v5), ncol=length(v2))
+
+rownames(matrice3PR1) <- v5
+colnames(matrice3PR1) <- sort.res
+
+matrice3PR1
+
+type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
+
+names(type) =c("1hhp_packCryst.pdb","1hih_packCryst.pdb","1hii_packCryst.pdb","1hiv_packCryst.pdb","1hpv_packCryst.pdb","1hsh_packCryst.pdb","1hsi_packCryst.pdb","1ivp_packCryst.pdb","1sdt_packCryst.pdb","2hb3_packCryst.pdb","2hb4_packCryst.pdb","2hpe_packCryst.pdb","2hpf_packCryst.pdb","2ien_packCryst.pdb","2mip_packCryst.pdb","2nph_packCryst.pdb","2z4o_packCryst.pdb","3ebz_packCryst.pdb","3ec0_packCryst.pdb","3ecg_packCryst.pdb","3ekv_packCryst.pdb","3nu3_packCryst.pdb","3phv_packCryst.pdb","3s45_packCryst.pdb","4hla_packCryst.pdb","4ll3_packCryst.pdb")
+ind.PR1 = names(which(type == "PR1"))
+
+listAtomSyn = c()
+for (j in v1) {
+  for (i in 1:length(ind.PR1)){
+    filein = listFile[j]
+    N = read.table(paste("fileByProt3",filein,sep="/"))
+    if((filein) == (ind.PR1[i])){
+      listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
+      listAtomSyn = (c(listAtom,listAtomSyn))
+    }
+  }
+}
+listAtomSyn2 = c()
+
+for (j in v1){
+  for (i in 1:length(ind.PR1)) {
+    filein = listFile[j]
+    N = read.table(paste("fileByProt3",filein,sep="/"))
+    if((filein) == (ind.PR1[i])){
+      
+      listAtom = (paste(as.character(N[,3])))
+      listAtomSyn2 = (c(listAtom,listAtomSyn2))
+    }
+  }
+}
+
+names(listAtomSyn) = listAtomSyn2
+
+for (j in 1:length(sort.res)) {
+  for (k in 1:length(v6)) {
+    
+    if (sort.res[j] == listAtomSyn[k]){
+    
+      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+       
+       matrice3PR1[1,sort.res[j]] = matrice3PR1[1,sort.res[j]] + 1
+       }else{
+         matrice3PR1[2,sort.res[j]] = matrice3PR1[2,sort.res[j]] + 1
+       }
+    }
+  }
+}
+
+matrice3PR1
+```
+
+
+```{r}
+v5 = c("Backbone","ChaineLat")
+v6 = 1:2450
+sort.res
+
+matrice3PR2 <- matrix(0, nrow=length(v5), ncol=length(v2))
+
+rownames(matrice3PR2) <- v5
+colnames(matrice3PR2) <- sort.res
+
+matrice3PR2
+
+type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
+
+names(type) =c("1hhp_packCryst.pdb","1hih_packCryst.pdb","1hii_packCryst.pdb","1hiv_packCryst.pdb","1hpv_packCryst.pdb","1hsh_packCryst.pdb","1hsi_packCryst.pdb","1ivp_packCryst.pdb","1sdt_packCryst.pdb","2hb3_packCryst.pdb","2hb4_packCryst.pdb","2hpe_packCryst.pdb","2hpf_packCryst.pdb","2ien_packCryst.pdb","2mip_packCryst.pdb","2nph_packCryst.pdb","2z4o_packCryst.pdb","3ebz_packCryst.pdb","3ec0_packCryst.pdb","3ecg_packCryst.pdb","3ekv_packCryst.pdb","3nu3_packCryst.pdb","3phv_packCryst.pdb","3s45_packCryst.pdb","4hla_packCryst.pdb","4ll3_packCryst.pdb")
+ind.PR2 = names(which(type == "PR2"))
+
+listAtomSyn = c()
+for (j in v1) {
+  for (i in 1:length(ind.PR2)){
+    filein = listFile[j]
+    if((filein) == (ind.PR2[i])){
+      N = read.table(paste("fileByProt3",filein,sep="/"))
+      listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
+      listAtomSyn = (c(listAtom,listAtomSyn))
+    }
+  }
+}
+listAtomSyn2 = c()
+
+for (j in v1){
+  for (i in 1:length(ind.PR2)) {
+    filein = listFile[j]
+    if((filein) == (ind.PR2[i])){
+      N = read.table(paste("fileByProt3",filein,sep="/"))
+      listAtom = (paste(as.character(N[,3])))
+      listAtomSyn2 = (c(listAtom,listAtomSyn2))
+    }
+  }
+}
+
+names(listAtomSyn) = listAtomSyn2
+
+for (j in 1:length(sort.res)) {
+  for (k in 1:length(v6)) {
+    
+    if (sort.res[j] == listAtomSyn[k]){
+    
+      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+       
+       matrice3PR2[1,sort.res[j]] = matrice3PR2[1,sort.res[j]] + 1
+       }else{
+         matrice3PR2[2,sort.res[j]] = matrice3PR2[2,sort.res[j]] + 1
+       }
+    }
+  }
+}
+
+matrice3PR2
+
+
+matricetotale = matrice3PR1 + matrice3PR2
 ```
 

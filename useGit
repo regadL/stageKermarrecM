@@ -1,0 +1,19 @@
+1- ajouter le Rmd dans ce répertoire
+
+2 - ouvrer le .Rmd
+
+3- fin de la journee
+
+git add . 
+--> ajouter tous les fichiers a répertoire git
+
+git commit -m "message" 
+--> d'ajouter au fichier history vos changements
+
+git push
+--> mettre les versions sous github
+
+
+### la journée suivante 
+git pull
+--> télécharger la dernière version du répertoire sous github
