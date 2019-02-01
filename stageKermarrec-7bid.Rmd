@@ -1,6 +1,6 @@
 ---
 title: "Stage de Maxime Kermarrec (L3-BI)"
-author: "Leslie REGAD et Maxime KERMARREC"
+author: "Leslie REGAD et Maxime Kermarrec"
 date: '`r Sys.Date()`'
 output:
   html_document:
@@ -179,10 +179,10 @@ listAtomSyn
 Récupération de la liste des résidus pour chaque protéine
 
 ```{r listRes}
-NbProt =(1:26)
-NbResidues =(1:159)
+v1 =(1:26)
+v2 =(1:159)
 
-for (i in NbProt){
+for (i in v1){
   filein = listFile[i]
   M = read.table(paste("fileByProt3",filein,sep="/"))
   listAtom = unique(paste(as.character(M[,6]), as.character(M[,5]), sep="_"))
@@ -196,24 +196,41 @@ listAtomSyn
 ```
 
 
+```{r}
+
+```
+
+
+*Remarques* : 
+
+Faire la matrice
+
+*Remarques*
+
+Pour simplifier la matrice, il faudrait donner des acronymes aux trois dernières lignes pour simplifier les rownames : 
+* NbStructinPC : Nb de structure dans lequel le résidu est implique",
+* NbStructinPC.PR1 :  "Nb de structure PR1 dans lequel le résidu est implique", 
+* NbStructinPC.PR2 : "Nb de structure PR2 dans lequel le résidu est implique.
+
+
 ```{r creationMat}
 
-Proteases = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
+v3 = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
 
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
 
 names(type) =c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
 
-matrice <- matrix(0, nrow=length(Proteases), ncol=length(listAtomSyn))
+matrice <- matrix(0, nrow=length(v3), ncol=length(listAtomSyn))
 
-rownames(matrice) <- Proteases
+rownames(matrice) <- v3
 colnames(matrice) <- listAtomSyn
 
-for (i in 1:length(NbProt)) {
+for (i in 1:length(v1)) {
   filein = listFile[i]
   M = read.table(paste("fileByProt3",filein,sep="/"))
   Atome <- unique(c(paste(as.character(M[,6]), as.character(M[,5]), sep="_")))
-  for (j in 1:length(NbResidues)) {
+  for (j in 1:length(v2)) {
     for (y in 1:length(Atome)) {
       if ((listAtomSyn[j]) == (Atome[y])){
         matrice[i,j] = 1
@@ -239,7 +256,32 @@ sort.res = c(sort.resA, sort.resB)
 matrice.sort = matrice[,sort.res]
 
 matrice  = matrice.sort
-matrice
+dim(matrice)
+```
+
+
+Solution 2 : 
+
+```{r creationMatLR}
+
+v3 = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3","* NbStructinPC", "NbStructinPC.PR1", "NbStructinPC.PR2Nb")
+
+matrice2 <- matrix(0, nrow=length(v3), ncol=length(listAtomSyn))
+rownames(matrice2) <- v3
+colnames(matrice2) <- listAtomSyn
+
+
+
+for (i in 1:length(v1)) {
+  filein = listFile[i]
+  M = read.table(paste("fileByProt3",filein,sep="/"))
+  residue <- unique(c(paste(as.character(M[,6]), as.character(M[,5]), sep="_")))
+  pdbCode <- unlist(strsplit(filein,"_"))[1]
+  matrice2[pdbCode, residue] = 1
+} 
+
+dim(matrice)
+dim(matrice2)
 ```
 
 
@@ -263,24 +305,24 @@ Le  nombre de structure dans lequel un résidu est impliqué dans le packing cri
 
 ```{r}
 
-StructinPC = c("NbStructinPC","NbStructinPC.PR1","NbStructinPC.PR2")
+v4 = c("NbStructinPC","NbStructinPC.PR1","NbStructinPC.PR2")
 
-matriceStruct <- matrix(0, nrow=length(StructinPC), ncol=length(listAtomSyn))
+matriceStruct <- matrix(0, nrow=length(v4), ncol=length(listAtomSyn))
 
-rownames(matriceStruct) <- StructinPC
+rownames(matriceStruct) <- v4
 colnames(matriceStruct) <- sort.res
 
 
-for (i in 1:length(NbResidues)){
+for (i in 1:length(v2)){
   y = 0
-  for (j in 1:length(Proteases[1:26])) {
+  for (j in 1:length(v3[1:26])) {
     if (matrice[j,i] == 1){
         y = y+1
         matriceStruct[1,i] = y
     }
   }
 }
-matriceStruct
+dim(matriceStruct)
 ```
 ```{r}
 type = matrice[,ncol(matrice)]
@@ -306,8 +348,16 @@ D'autres résidus sont retrouvés dans la majorité des structures (>80%) : `r n
 
 
 2. Représenter ces valeurs graphiquement
+
+Pourquoi refaire un vecteur ???
 ```{r}
-hist(NbStructinPC,xlab = matriceStruct[1,])
+v6=(1:159)
+
+for (i in 1:length(listAtomSyn)) {
+  v6[i] = matriceStruct[1,i]
+}
+?hist
+hist(v6,xlab = matriceStruct[1,])
 ```
 
 On va aussi faire un barplot pour voir le nombre pour chaque résidus
@@ -318,9 +368,23 @@ barplot(NbStructinPC, las = 2, cex.names  = 0.6)
 
 3. Calculer la moyenne et écart type de ce nombre
 
+Pourquoi vous n'utlisez pas les commandes `mean()` et `sd()` ?
+ 
+
 ```{r}
+#sommeStruct = apply(matriceStruct,1,sum)
+#sommeStructPC.PR1 = sommeStruct[1]
+
+#moyennePC = (sommeStructPC)/(length(NbStructinPC))
 mean(matriceStruct[1,])
 sd(matriceStruct[1,])
+
+#a = 0
+#for (i in 1:length(NbStructinPC)) {
+#  a = a + ((NbStructinPC[i] - moyennePC)*(NbStructinPC[i] - moyennePC))
+#}
+
+#ecarttypePC = sqrt(a/(length(NbStructinPC)))
 ```
 
 
@@ -350,9 +414,9 @@ matriceStruct = rbind(NbStructinPC,NbStructinPC.PR1,NbStructinPC.PR2)
 matriceStruct
 ###version un peu longue
 
-for (i in 1:length(NbResidues)){
+for (i in 1:length(v2)){
   y = 0
-  for (j in 1:length(Proteases[1:26])) {
+  for (j in 1:length(v3[1:26])) {
     if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR1")){
         y = y+1
         
@@ -360,18 +424,15 @@ for (i in 1:length(NbResidues)){
   matriceStruct[2,i] = y
   }
 }
-matriceStruct
+
 ```
-Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de Proteases
+Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de v3
 
 
 2. Représenter ces valeurs graphiquement
 
 ```{r}
-hist(NbStructinPC.PR1,xlab = matriceStruct[1,])
-```
-```{r}
-barplot(NbStructinPC.PR1, las = 2, cex.names  = 0.6)
+
 ```
 
 
@@ -390,28 +451,26 @@ sd(matriceStruct["NbStructinPC.PR1",])
 
 ```{r}
 
-for (i in 1:length(NbResidues)){
+for (i in 1:length(v2)){
   y = 0
-  for (j in 1:length(Proteases[1:26])) {
+  for (j in 1:length(v3[1:26])) {
     if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR2")){
         y = y+1
+        
     }
   matriceStruct[3,i] = y
   }
 }
-matriceStruct
+
 
 ```
 
-Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de Proteases
+Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de v3
 
 2. Représenter ces valeurs graphiquement
 
 ```{r}
-hist(NbStructinPC.PR2,xlab = "")
-```
-```{r}
-barplot(NbStructinPC.PR2, las = 2, cex.names  = 0.6)
+
 ```
 
 
@@ -469,17 +528,19 @@ cor(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",])
 ### pour tous les résidus : Est-ce des atomes des chaines latérales ou du backbone qui sont impliqués dans le packing.
 
 ```{r}
-list.bk = c("C","O","N","CA")
-Localisation = c("Backbone","ChaineLat")
-NbAtomeinPC = 1:6039  ##Il faudrait automatiser ces valeurs
+v5 = c("Backbone","ChaineLat")
+v6 = 1:6039  ##Il faudrait automatiser ces valeurs
+sort.res
 
-matrice3 <- matrix(0, nrow=length(Localisation), ncol=length(NbResidues))
+matrice3 <- matrix(0, nrow=length(v5), ncol=length(v2))
 
-rownames(matrice3) <- Localisation
+rownames(matrice3) <- v5
 colnames(matrice3) <- sort.res
 
+matrice3
+
 listAtomSyn = c()
-for (i in NbProt){
+for (i in v1){
   filein = listFile[i]
   N = read.table(paste("fileByProt3",filein,sep="/"))
   listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
@@ -488,7 +549,7 @@ for (i in NbProt){
 
 listAtomSyn2 = c()
 
-for (i in NbProt){
+for (i in v1){
   filein = listFile[i]
   N = read.table(paste("fileByProt3",filein,sep="/"))
   listAtom = (paste(as.character(N[,3])))
@@ -496,9 +557,10 @@ for (i in NbProt){
 }
 
 names(listAtomSyn) = listAtomSyn2
+sort.res
 
 for (j in 1:length(sort.res)) {
-  for (k in 1:length(NbAtomeinPC)) {
+  for (k in 1:length(v6)) {
     
     if (sort.res[j] == listAtomSyn[k]){
     
@@ -514,6 +576,10 @@ for (j in 1:length(sort.res)) {
 }
 
 matrice3
+
+
+
+
 ```
 
 
@@ -525,21 +591,18 @@ pheatmap(matrice3, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10
 
 A refaire pour le nombre de protéine : matrice avec des 0 et 1
 
-```{r}
-
-```
-
-
-
 
 ```{r}
-Localisation = c("Backbone","ChaineLat")
-NbAtomeinPC.1 = 1:3589   # d'où vient le 3589????
+v5 = c("Backbone","ChaineLat")
+v6 = 1:3589   # d'où vient le 3589????
+sort.res
 
-matrice3PR1 <- matrix(0, nrow=length(Localisation), ncol=length(NbResidues))
+matrice3PR1 <- matrix(0, nrow=length(v5), ncol=length(v2))
 
-rownames(matrice3PR1) <- Localisation
+rownames(matrice3PR1) <- v5
 colnames(matrice3PR1) <- sort.res
+
+matrice3PR1
 
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
 
@@ -550,7 +613,7 @@ ind.PR1 = names(which(type == "PR1"))
 #ici je ne comprends pas pourquoi vous faites une double boucle
 listAtomSyn = c()
 pp = NULL
-for (j in NbProt) {
+for (j in v1) {
   for (i in 1:length(ind.PR1)){
     filein = listFile[j]
     N = read.table(paste("fileByProt3",filein,sep="/"))
@@ -576,7 +639,7 @@ for(filein in names(type)){
 
 listAtomSyn2 = c()
 
-for (j in NbProt){
+for (j in v1){
   for (i in 1:length(ind.PR1)) {
     filein = listFile[j]
     N = read.table(paste("fileByProt3",filein,sep="/"))
@@ -591,7 +654,7 @@ for (j in NbProt){
 names(listAtomSyn) = listAtomSyn2
 
 for (j in 1:length(sort.res)) {
-  for (k in 1:length(NbAtomeinPC.1)) {
+  for (k in 1:length(v6)) {
     
     if (sort.res[j] == listAtomSyn[k]){
     
@@ -608,22 +671,18 @@ for (j in 1:length(sort.res)) {
 matrice3PR1
 ```
 
-```{r}
-pheatmap(matrice3PR1, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 150), col = c("white", "wheat", "yellow", "orange", "red"))
-```
-
-
-
-
 
 ```{r}
-Localisation = c("Backbone","ChaineLat")
-NbAtomeinPC.2 = 1:2450
+v5 = c("Backbone","ChaineLat")
+v6 = 1:2450
+sort.res
 
-matrice3PR2 <- matrix(0, nrow=length(Localisation), ncol=length(NbResidues))
+matrice3PR2 <- matrix(0, nrow=length(v5), ncol=length(v2))
 
-rownames(matrice3PR2) <- Localisation
+rownames(matrice3PR2) <- v5
 colnames(matrice3PR2) <- sort.res
+
+matrice3PR2
 
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
 
@@ -631,7 +690,7 @@ names(type) =c("1hhp_packCryst.pdb","1hih_packCryst.pdb","1hii_packCryst.pdb","1
 ind.PR2 = names(which(type == "PR2"))
 
 listAtomSyn = c()
-for (j in NbProt) {
+for (j in v1) {
   for (i in 1:length(ind.PR2)){
     filein = listFile[j]
     if((filein) == (ind.PR2[i])){
@@ -643,7 +702,7 @@ for (j in NbProt) {
 }
 listAtomSyn2 = c()
 
-for (j in NbProt){
+for (j in v1){
   for (i in 1:length(ind.PR2)) {
     filein = listFile[j]
     if((filein) == (ind.PR2[i])){
@@ -659,7 +718,7 @@ list.bk = c("C","CA","N","O")
 names(listAtomSyn) = listAtomSyn2
 
 for (j in 1:length(sort.res)) {
-  for (k in 1:length(NbAtomeinPC.2)) {
+  for (k in 1:length(v6)) {
     
     if (sort.res[j] == listAtomSyn[k]){
     
@@ -673,86 +732,16 @@ for (j in 1:length(sort.res)) {
     }
   }
 }
+
+
+
+
+
+
+
 matrice3PR2
+
 
 matricetotale = matrice3PR1 + matrice3PR2
 ```
-```{r}
-pheatmap(matrice3PR2, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 70, 100), col = c("white", "wheat", "yellow", "orange", "red"))
-```
 
-
-
-
-##Localisation des résidus impliqués dans le packing cristallin
-
-###Pour PR
-
-```{r}
-ResidueTotaux = c("1_A","2_A","3_A","4_A","5_A","6_A","7_A","8_A","9_A","10_A","11_A","12_A","13_A","14_A","15_A","16_A","17_A","18_A","19_A","20_A","21_A","22_A","23_A","24_A","25_A","26_A","27_A","28_A","29_A","30_A","31_A","32_A","33_A","34_A","35_A","36_A","37_A","38_A","39_A","40_A","41_A","42_A","43_A","44_A","45_A","46_A","47_A", "48_A", "49_A", "50_A", "51_A", "52_A", "53_A", "54_A", "55_A", "56_A", "57_A", "58_A", "59_A", "60_A", "61_A","62_A", "63_A","64_A", "65_A", "66_A", "67_A", "68_A","69_A", "70_A", "71_A", "72_A", "73_A", "74_A","75_A","76_A","77_A", "78_A", "79_A", "80_A", "81_A", "82_A", "83_A","84_A","85_A","86_A","87_A", "88_A", "89_A", "90_A", "91_A", "92_A", "93_A", "94_A", "95_A","96_A", "97_A", "98_A", "99_A", "1_B", "2_B", "3_B", "4_B","5_B","6_B","7_B","8_B","9_B","10_B", "11_B", "12_B", "13_B", "14_B","15_B", "16_B", "17_B", "18_B", "19_B","20_B","21_B","22_B","23_B","24_B","25_B","26_B","27_B","28_B", "29_B", "30_B" ,"31_B","32_B","33_B", "34_B", "35_B" ,"36_B", "37_B", "38_B", "39_B" ,"40_B", "41_B", "42_B", "43_B", "44_B", "45_B", "46_B", "47_B", "48_B", "49_B","50_B", "51_B", "52_B", "53_B", "54_B", "55_B", "56_B" ,"57_B", "58_B", "59_B", "60_B" ,"61_B", "62_B", "63_B","64_B", "65_B","66_B", "67_B" ,"68_B", "69_B", "70_B", "71_B","72_B", "73_B", "74_B","75_B", "76_B","77_B", "78_B", "79_B", "80_B", "81_B", "82_B", "83_B","84_B","85_B","86_B", "87_B", "88_B","89_B","90_B", "91_B", "92_B","93_B", "94_B", "95_B", "96_B","97_B", "98_B", "99_B")
-
-zservs = c("dimer","dimer","dimer","dimer","dimer","R1","R1","R1","R1","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","R2","R2","R2","R2","R2","R2","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","R3","R3","R3","R3","wall","wall","wall","wall","R4","R4","R4","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","dimer","dimer","dimer","dimer","dimer","dimer","dimer","dimer","dimer","R1","R1","R1","R1","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","R2","R2","R2","R2","R2","R2","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","R3","R3","R3","R3","wall","wall","wall","wall","R4","R4","R4","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","dimer","dimer","dimer","dimer")
-
-matrice3PR2 <- matrix(0, nrow=length(NbResidues), ncol=length(NbResidues))
-
-rownames(matrice3PR2) <- Proteases
-colnames(matrice3PR2) <- sort.res
-
-
-listAtomSyn = c()
-for (j in NbProt) {
-  for (i in 1:length(ind.PR2)){
-    filein = listFile[j]
-    if((filein) == (ind.PR2[i])){
-      N = read.table(paste("fileByProt3",filein,sep="/"))
-      listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
-      listAtomSyn = (c(listAtom,listAtomSyn))
-    }
-  }
-}
-listAtomSyn2 = c()
-
-for (j in NbProt){
-  for (i in 1:length(ind.PR2)) {
-    filein = listFile[j]
-    if((filein) == (ind.PR2[i])){
-      N = read.table(paste("fileByProt3",filein,sep="/"))
-      listAtom = (paste(as.character(N[,3])))
-      listAtomSyn2 = (c(listAtom,listAtomSyn2))
-    }
-  }
-}
-
-
-list.bk = c("C","CA","N","O")
-names(listAtomSyn) = listAtomSyn2
-
-for (j in 1:length(sort.res)) {
-  for (k in 1:length(NbAtomeinPC.2)) {
-    
-    if (sort.res[j] == listAtomSyn[k]){
-    
-      #if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
-      if (is.element(listAtomSyn2[k], list.bk)==TRUE){
-       
-       matrice3PR2[1,sort.res[j]] = matrice3PR2[1,sort.res[j]] + 1
-       }else{
-         matrice3PR2[2,sort.res[j]] = matrice3PR2[2,sort.res[j]] + 1
-       }
-    }
-  }
-}
-matrice3PR2
-```
-
-###Pour PR1
-
-```{r}
-
-```
-
-###Pour PR2
-
-```{r}
-
-```

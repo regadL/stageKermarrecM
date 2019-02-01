@@ -1,7 +1,7 @@
 ---
 title: "Stage de Maxime Kermarrec (L3-BI)"
-author: "Leslie REGAD et Maxime Kermarrec"
-date: '2019-01-31'
+author: "Leslie REGAD et Maxime KERMARREC"
+date: '2019-02-01'
 output:
   html_document:
     code_folding: show #hide
@@ -170,10 +170,10 @@ Récupération de la liste des résidus pour chaque protéine
 
 
 ```r
-v1 =(1:26)
-v2 =(1:159)
+NbProt =(1:26)
+NbResidues =(1:159)
 
-for (i in v1){
+for (i in NbProt){
   filein = listFile[i]
   M = read.table(paste("fileByProt3",filein,sep="/"))
   listAtom = unique(paste(as.character(M[,6]), as.character(M[,5]), sep="_"))
@@ -192,38 +192,23 @@ listAtomSyn
 
 
 
-
-
-*Remarques* : 
-
-Faire la matrice
-
-*Remarques*
-
-Pour simplifier la matrice, il faudrait donner des acronymes aux trois dernières lignes pour simplifier les rownames : 
-* NbStructinPC : Nb de structure dans lequel le résidu est implique",
-* NbStructinPC.PR1 :  "Nb de structure PR1 dans lequel le résidu est implique", 
-* NbStructinPC.PR2 : "Nb de structure PR2 dans lequel le résidu est implique.
-
-
-
 ```r
-v3 = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
+Proteases = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
 
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
 
 names(type) =c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
 
-matrice <- matrix(0, nrow=length(v3), ncol=length(listAtomSyn))
+matrice <- matrix(0, nrow=length(Proteases), ncol=length(listAtomSyn))
 
-rownames(matrice) <- v3
+rownames(matrice) <- Proteases
 colnames(matrice) <- listAtomSyn
 
-for (i in 1:length(v1)) {
+for (i in 1:length(NbProt)) {
   filein = listFile[i]
   M = read.table(paste("fileByProt3",filein,sep="/"))
   Atome <- unique(c(paste(as.character(M[,6]), as.character(M[,5]), sep="_")))
-  for (j in 1:length(v2)) {
+  for (j in 1:length(NbResidues)) {
     for (y in 1:length(Atome)) {
       if ((listAtomSyn[j]) == (Atome[y])){
         matrice[i,j] = 1
@@ -249,47 +234,91 @@ sort.res = c(sort.resA, sort.resB)
 matrice.sort = matrice[,sort.res]
 
 matrice  = matrice.sort
-dim(matrice)
+matrice
 ```
 
 ```
-[1]  26 159
-```
-
-
-Solution 2 : 
-
-
-```r
-v3 = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3","* NbStructinPC", "NbStructinPC.PR1", "NbStructinPC.PR2Nb")
-
-matrice2 <- matrix(0, nrow=length(v3), ncol=length(listAtomSyn))
-rownames(matrice2) <- v3
-colnames(matrice2) <- listAtomSyn
-
-
-
-for (i in 1:length(v1)) {
-  filein = listFile[i]
-  M = read.table(paste("fileByProt3",filein,sep="/"))
-  residue <- unique(c(paste(as.character(M[,6]), as.character(M[,5]), sep="_")))
-  pdbCode <- unlist(strsplit(filein,"_"))[1]
-  matrice2[pdbCode, residue] = 1
-} 
-
-dim(matrice)
-```
-
-```
-[1]  26 159
-```
-
-```r
-dim(matrice2)
-```
-
-```
-[1]  29 159
+     1_A 2_A 3_A 4_A 5_A 6_A 7_A 8_A 9_A 10_A 11_A 12_A 14_A 15_A 16_A 17_A 18_A 19_A 20_A 21_A 23_A 24_A 25_A 26_A 27_A 29_A 30_A 34_A 35_A 36_A 37_A 38_A 39_A 40_A 41_A 42_A 43_A 44_A 45_A 46_A 47_A 48_A 49_A 50_A 51_A 52_A 53_A 54_A 55_A 56_A 57_A 58_A 59_A 60_A 61_A 63_A 65_A 66_A 67_A 68_A
+1hhp   1   1   1   1   1   1   1   1   1    0    0    0    0    0    0    0    0    0    0    0    1    1    1    1    1    1    0    0    1    0    1    0    0    0    0    1    0    0    0    0    0    1    1    1    1    1    1    1    1    1    1    0    0    0    1    0    0    0    1    0
+1hih   0   1   0   1   0   1   0   0   0    0    0    1    1    0    1    0    1    1    0    0    0    0    0    0    0    0    0    1    0    0    1    1    1    1    0    1    1    1    0    1    0    0    0    0    0    0    1    0    1    0    0    0    0    0    1    1    0    0    1    1
+1hii   1   1   1   1   0   1   1   0   0    0    1    0    1    0    1    1    1    1    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    1    1    1    1    0    1    1    0    0    0    0    0    0    1    0    1    0    0    0    0    1    1    0    0    0    1    1
+1hiv   0   1   0   1   0   1   0   0   0    1    1    1    1    0    1    0    1    1    0    1    0    0    0    0    0    0    0    1    0    1    1    1    1    0    1    1    0    1    1    1    0    0    0    0    0    1    1    0    1    0    0    0    0    0    1    1    0    0    0    1
+1hpv   0   1   0   1   0   1   1   0   0    0    0    1    1    0    1    1    1    1    1    1    0    0    0    0    0    0    0    0    1    0    1    1    1    1    0    0    1    0    0    1    0    0    0    0    0    1    1    0    1    0    0    0    0    0    1    1    0    0    0    0
+1hsh   0   1   0   0   0   1   1   1   0    1    0    1    0    0    1    1    0    0    0    0    0    0    0    0    0    1    0    1    1    0    1    0    0    1    1    1    1    1    1    1    0    0    0    0    1    0    0    0    1    0    1    0    0    1    1    1    0    0    0    1
+1hsi   0   1   0   1   0   1   1   0   0    0    0    0    0    0    1    1    1    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    1    1    0    0    0    0    1    0    0    0    0    0    0    1    0    0    0    0    0    0    0    0    1    0    0    0    1
+1ivp   0   1   0   1   0   1   1   0   0    0    1    1    1    0    0    0    0    1    1    0    0    0    0    0    0    0    0    0    0    0    1    0    1    0    1    1    0    1    1    1    0    0    0    0    0    0    1    0    1    0    0    0    1    1    0    0    1    0    0    1
+1sdt   0   0   0   1   0   1   1   0   0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    0    0    0    0    1    1    1    1    0    0    0    0    0    1    1    1    1    0    0    0    0    0    0    1    0    0    0    1    1    0    0    0    0    0    0    0    0
+2hb3   0   0   0   1   0   1   1   0   0    0    0    0    0    0    0    0    1    0    1    0    0    0    0    0    0    0    0    1    1    1    1    0    0    0    1    0    1    1    1    1    0    1    1    0    0    0    1    0    1    0    0    1    0    0    1    0    0    0    0    0
+2hb4   1   1   1   1   1   1   1   1   1    0    0    0    0    0    0    0    0    0    0    0    1    1    1    1    1    1    0    0    1    0    0    0    0    0    0    1    0    0    0    0    0    1    1    1    1    1    1    1    1    1    1    0    0    0    1    0    0    1    1    0
+2hpe   1   1   0   1   0   1   1   0   0    0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    0    0    0    0    1    0    1    0    1    1    1    1    0    1    0    0    0    0    0    0    1    1    0    0    1    0    1    1    1    1    1    0    0    0    0    1
+2hpf   0   0   0   0   1   1   1   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    0    0    0    0    0    1    1    0    1    0    0    0    0    0    1    1    0    0    0    0
+2ien   0   0   0   1   0   1   1   0   0    0    0    0    0    0    0    0    1    0    1    0    0    0    0    0    0    0    0    1    1    1    1    0    0    0    1    0    1    1    1    1    0    0    1    1    0    1    1    0    1    0    1    1    0    0    1    0    0    0    0    0
+2mip   0   0   0   1   0   1   1   1   0    0    0    0    1    0    1    1    0    1    0    0    0    0    0    0    0    1    1    0    0    0    0    0    0    1    1    1    0    1    1    1    1    0    0    0    1    0    1    1    1    0    1    1    0    1    0    0    0    0    0    0
+2nph   0   1   1   1   0   1   1   0   0    0    0    1    1    0    1    1    1    1    1    1    0    0    0    0    0    0    0    0    1    0    1    1    1    1    0    0    1    1    0    1    1    1    1    0    0    1    1    0    0    0    0    0    0    0    1    1    0    0    1    0
+2z4o   0   0   0   1   0   1   1   0   0    0    0    0    0    0    0    0    1    0    1    0    0    0    0    0    0    0    0    1    1    1    1    0    0    0    0    0    1    1    1    1    0    0    1    1    0    1    1    0    0    0    1    1    0    0    0    0    0    0    0    0
+3ebz   0   1   0   1   0   1   1   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    1    1    1    1    1    1    0    1    0    0    0    0    1    1    1    0    1    1    0    0    0    1    1    0    0    0
+3ec0   0   1   0   1   0   1   1   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    0    0    1    1    1    1    1    1    1    0    1    0    0    0    0    1    1    1    0    0    1    0    0    0    1    1    0    0    0
+3ecg   0   1   0   1   0   1   1   0   0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    1    1    1    1    1    1    0    1    0    0    0    0    1    1    1    0    0    1    0    0    0    1    1    0    0    0
+3ekv   0   1   0   1   0   1   0   0   0    0    0    1    1    1    1    1    1    1    0    0    0    0    0    0    0    0    0    1    0    1    1    1    1    1    0    1    1    1    0    1    0    0    0    0    0    1    1    0    1    0    0    0    0    0    1    1    1    0    1    1
+3nu3   0   0   0   1   0   1   1   0   0    0    0    0    0    0    0    0    1    0    1    0    0    0    0    0    0    0    0    1    1    1    1    0    0    0    0    0    1    1    1    1    0    1    1    0    0    0    1    0    1    0    1    1    0    0    0    0    0    0    0    0
+3phv   1   1   1   1   1   1   1   1   1    0    0    0    0    0    0    0    0    0    0    0    0    1    1    1    1    1    0    0    1    0    1    0    0    0    0    1    0    0    0    0    0    1    1    1    1    1    0    1    1    1    1    0    0    0    1    0    0    0    1    0
+3s45   0   1   0   1   0   1   1   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    1    1    1    1    1    1    0    1    0    0    0    0    1    1    1    0    1    1    0    0    0    0    1    0    0    0
+4hla   0   1   0   1   0   1   1   0   0    0    0    1    1    0    1    1    1    1    1    1    0    0    0    0    0    0    0    0    1    0    1    1    1    1    1    0    1    1    0    1    0    0    0    0    1    1    1    0    0    0    0    0    0    0    1    1    0    0    0    0
+4ll3   0   1   0   1   0   1   1   1   0    0    0    1    1    0    1    1    1    1    1    1    0    0    0    0    0    0    0    0    1    0    1    1    1    1    0    0    1    1    1    1    1    1    0    0    1    1    1    0    0    0    0    0    0    1    1    1    0    0    0    0
+     69_A 70_A 71_A 72_A 73_A 74_A 78_A 79_A 80_A 81_A 82_A 87_A 88_A 89_A 90_A 91_A 92_A 93_A 94_A 95_A 96_A 97_A 98_A 99_A 1_B 2_B 3_B 4_B 6_B 7_B 8_B 10_B 11_B 12_B 13_B 14_B 16_B 17_B 18_B 19_B 20_B 21_B 29_B 30_B 34_B 35_B 36_B 37_B 38_B 39_B 40_B 41_B 42_B 43_B 44_B 45_B 46_B 47_B 48_B 49_B
+1hhp    1    0    0    1    0    0    0    1    0    0    0    1    0    0    1    1    1    1    1    1    1    1    1    1   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+1hih    0    1    0    1    0    0    0    1    1    1    1    0    0    0    0    1    1    0    0    0    0    0    0    0   0   0   0   1   1   1   0    0    0    1    0    1    1    1    1    1    1    0    0    0    0    1    1    1    1    1    1    1    1    1    1    1    1    0    0    1
+1hii    0    1    0    0    0    0    0    0    0    0    0    0    0    0    0    1    1    1    1    0    0    0    0    0   1   1   1   1   1   1   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    1    1    1    1    1    1    1    1    1    0    0    0
+1hiv    0    1    1    1    0    0    0    1    1    1    1    0    0    0    0    1    1    0    0    0    0    0    0    0   0   0   0   1   1   1   0    0    0    1    0    0    1    1    1    1    1    1    0    0    0    1    0    1    1    1    1    1    1    0    1    1    1    0    0    1
+1hpv    0    1    1    1    0    0    0    0    0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    0   0   1   0   1   1   1   0    0    0    1    0    1    1    1    1    1    1    1    0    0    0    1    0    1    1    1    1    0    0    1    0    0    1    1    1    0
+1hsh    0    0    0    1    0    0    1    1    0    1    1    1    0    0    0    0    0    0    0    0    0    0    0    1   0   0   0   0   1   1   1    0    0    0    0    0    1    1    1    1    0    0    1    1    0    0    0    0    1    1    0    0    1    0    1    1    1    0    0    0
+1hsi    0    0    0    1    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   1   1   1   0   0   1   1    0    0    1    0    0    1    1    1    1    0    1    0    0    0    0    0    1    1    1    0    0    0    0    1    1    1    0    0    0
+1ivp    1    0    0    0    0    1    0    1    1    1    0    0    0    0    0    1    1    1    1    0    0    0    0    0   0   0   0   0   1   1   0    0    0    0    0    1    0    1    0    1    0    0    0    0    0    0    0    0    0    1    1    0    1    0    1    0    0    0    0    0
+1sdt    0    0    0    1    1    0    0    0    0    0    0    0    1    1    0    1    1    0    1    0    0    0    0    0   0   1   0   0   1   0   0    0    0    1    0    1    0    1    0    1    0    0    0    0    1    0    0    0    0    0    1    1    1    1    1    0    0    0    0    0
+2hb3    0    1    0    1    1    0    0    0    0    0    0    0    1    1    0    1    1    0    1    0    0    0    0    0   0   1   0   0   1   0   0    0    0    1    0    1    0    1    1    1    0    0    0    0    1    0    0    0    0    0    1    1    1    1    1    0    0    0    0    0
+2hb4    1    0    0    1    0    0    0    1    0    1    0    1    0    0    1    1    1    1    1    1    1    1    1    1   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+2hpe    1    0    0    0    0    1    0    1    0    1    0    0    0    0    0    0    0    0    0    0    0    0    1    1   0   1   0   0   1   1   0    0    0    1    0    0    0    1    1    1    1    1    0    0    0    0    0    1    0    1    1    1    1    1    0    0    1    0    0    0
+2hpf    0    0    1    1    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   0   0   0   0   1   1   0    0    0    1    1    1    1    1    0    1    1    1    0    0    0    0    0    1    0    1    0    0    0    0    0    1    1    0    0    0
+2ien    0    1    0    1    1    0    0    0    0    0    0    0    1    1    0    1    1    0    1    0    0    0    0    0   0   0   0   1   1   0   0    0    0    1    0    1    0    1    0    1    0    0    0    0    1    0    0    0    0    0    1    1    1    1    1    0    0    0    0    0
+2mip    0    0    0    1    0    0    0    0    0    1    1    1    0    0    0    0    0    0    0    0    0    0    0    1   1   1   1   0   1   1   1    0    0    1    0    1    1    1    1    1    0    1    1    1    0    0    0    1    0    0    1    1    1    1    1    0    1    1    1    0
+2nph    0    1    1    1    0    0    0    1    0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    0   0   1   1   1   1   1   0    0    0    1    0    1    1    1    1    1    1    1    0    0    0    1    0    1    1    1    1    0    0    1    1    0    1    0    0    0
+2z4o    0    0    0    1    1    0    0    0    0    0    0    0    1    1    0    1    1    0    1    0    0    0    0    0   0   1   0   1   1   0   0    0    0    1    0    1    0    1    0    1    0    0    0    0    1    0    0    0    0    0    1    1    1    1    1    0    0    0    0    0
+3ebz    0    1    0    1    0    0    0    1    0    0    0    0    0    0    0    0    0    0    0    0    1    0    1    1   1   1   0   0   0   1   0    1    1    1    0    1    0    1    1    1    1    1    0    0    0    0    0    1    0    0    1    1    1    1    1    1    1    0    1    0
+3ec0    1    1    0    1    0    0    0    1    0    0    0    0    0    0    0    0    0    0    0    0    1    0    1    1   1   1   0   0   0   1   0    1    0    1    0    1    0    1    1    1    1    1    0    0    0    0    0    1    0    0    1    1    1    1    1    1    1    0    0    0
+3ecg    0    1    0    0    0    0    0    1    0    0    0    0    0    0    0    0    0    0    0    0    1    0    1    1   1   1   0   0   0   1   0    1    0    1    0    1    0    1    1    1    1    1    0    0    0    0    0    1    0    0    1    1    1    1    1    1    1    0    1    0
+3ekv    0    1    1    1    0    0    0    1    1    1    0    0    0    0    0    1    1    0    0    0    0    0    0    0   0   0   0   1   1   1   0    0    0    0    0    0    1    1    1    1    0    0    0    0    0    1    1    1    1    1    1    0    1    0    1    1    1    0    1    1
+3nu3    0    0    0    1    1    0    0    0    0    0    0    0    1    1    0    1    1    0    1    0    0    0    0    0   0   1   0   1   1   0   0    0    0    1    0    1    0    1    0    1    0    0    0    0    1    0    0    0    0    0    1    1    1    1    1    0    0    0    0    0
+3phv    1    0    0    1    0    0    0    1    0    0    0    1    0    0    1    1    1    1    1    1    1    1    1    1   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+3s45    0    1    0    0    0    0    0    1    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    1   0   1   0   0   0   1   0    1    0    1    0    1    0    1    1    1    1    1    0    0    0    0    0    1    0    0    1    1    1    1    1    1    1    0    1    0
+4hla    0    1    1    1    0    0    0    1    0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    0   0   1   0   1   1   1   0    0    0    1    0    1    1    1    1    1    1    1    0    0    0    1    0    1    1    1    1    0    0    1    1    0    1    1    1    0
+4ll3    0    1    1    1    0    0    0    1    0    1    0    0    0    0    0    0    1    0    1    0    1    0    0    0   0   1   0   1   1   1   1    0    0    1    0    1    1    1    1    1    1    1    0    0    0    0    0    1    1    1    1    0    0    0    1    0    1    1    1    0
+     50_B 51_B 52_B 53_B 54_B 55_B 56_B 57_B 58_B 59_B 60_B 61_B 62_B 63_B 65_B 67_B 68_B 69_B 70_B 71_B 72_B 73_B 74_B 76_B 78_B 79_B 80_B 81_B 82_B 83_B 87_B 88_B 91_B 92_B 94_B 95_B 96_B 98_B 99_B
+1hhp    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+1hih    1    0    1    1    0    1    0    1    1    0    0    0    0    1    0    0    0    0    1    1    1    0    0    0    0    1    1    1    0    0    0    0    0    1    1    0    1    0    0
+1hii    0    0    0    1    0    0    0    1    0    1    1    1    0    0    0    1    1    0    0    0    1    0    0    0    0    1    0    1    0    0    0    0    0    0    0    0    0    0    1
+1hiv    0    0    1    1    0    0    0    1    0    0    0    0    0    1    0    0    0    0    1    0    1    0    0    0    0    1    1    1    0    0    0    0    0    1    1    0    1    0    0
+1hpv    0    0    1    1    0    0    0    0    0    0    0    1    0    1    0    0    0    0    1    1    1    0    0    0    0    0    0    0    0    0    0    0    0    1    0    0    0    0    0
+1hsh    0    1    1    1    1    1    0    1    0    0    0    1    0    1    1    0    1    1    1    0    0    0    0    0    0    1    0    0    0    0    1    0    0    0    0    0    0    0    0
+1hsi    0    0    0    1    0    1    0    0    0    0    0    0    0    1    0    1    1    0    0    0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    0    0    0    0    0
+1ivp    0    0    0    1    0    0    0    1    1    1    1    1    0    0    0    0    1    1    0    0    1    1    1    0    0    1    0    1    0    0    0    0    0    0    0    0    0    0    0
+1sdt    0    0    0    0    0    1    0    0    0    0    0    1    0    1    1    0    1    0    0    1    1    0    0    0    0    1    1    1    0    0    0    0    1    1    0    0    0    0    0
+2hb3    0    0    0    0    0    1    0    0    0    0    0    1    0    1    1    0    1    0    1    1    1    0    0    0    0    1    1    1    1    0    0    0    1    1    0    0    0    0    0
+2hb4    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+2hpe    1    1    1    1    0    1    1    1    0    1    1    1    0    0    0    0    1    0    0    0    1    0    1    0    0    0    0    0    1    1    0    0    0    0    1    1    1    1    0
+2hpf    0    0    0    1    1    1    0    0    0    0    1    0    0    0    0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    1    1    1    1    1    0    0    0    0    0
+2ien    0    0    0    0    0    1    0    0    0    0    0    1    0    1    1    0    1    0    1    1    1    0    0    0    0    1    1    1    1    0    0    0    1    1    0    0    0    0    0
+2mip    0    1    1    1    1    1    0    0    0    0    0    1    0    1    1    0    1    0    1    0    1    0    0    1    0    1    0    0    0    0    0    0    0    0    0    0    0    0    0
+2nph    0    0    1    1    0    0    0    1    0    0    0    1    0    1    0    0    1    0    1    1    1    0    0    0    0    1    0    1    1    0    0    0    0    1    0    0    0    0    0
+2z4o    0    0    0    0    0    1    0    0    0    0    0    1    0    1    1    0    1    0    1    1    1    0    0    0    0    1    1    1    1    0    0    0    1    1    0    0    0    0    0
+3ebz    0    0    0    1    1    1    0    1    0    0    1    1    0    0    0    0    1    0    0    0    0    0    0    0    0    1    0    1    0    0    0    0    0    0    1    0    1    1    1
+3ec0    0    0    0    1    1    1    0    0    0    0    1    1    0    1    0    0    1    0    1    0    0    0    0    0    0    1    0    1    0    0    0    0    0    0    1    0    1    1    1
+3ecg    0    0    0    1    1    1    0    0    0    0    0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    1    0    1    0    0    0    0    0    0    1    1    1    1    1
+3ekv    0    0    1    1    0    0    0    1    1    0    0    0    1    1    0    0    0    0    1    1    1    0    0    0    1    1    1    1    0    0    0    0    0    1    0    0    1    0    0
+3nu3    0    0    0    0    0    1    0    0    0    0    0    1    0    1    1    0    1    0    1    1    1    0    0    0    0    1    1    1    0    0    0    0    1    1    0    0    0    0    0
+3phv    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+3s45    0    0    0    1    0    1    0    1    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    1    0    1    0    0    0    0    0    0    1    0    0    1    1
+4hla    0    1    1    1    0    0    0    1    0    0    0    1    0    1    0    0    0    0    1    1    1    0    0    0    0    1    0    0    0    0    0    0    0    1    0    0    0    0    0
+4ll3    0    0    1    1    0    0    0    0    0    0    0    1    0    1    0    0    0    0    1    1    1    0    0    0    0    1    0    0    0    0    0    0    0    1    0    0    1    0    0
 ```
 
 
@@ -321,28 +350,39 @@ Le  nombre de structure dans lequel un résidu est impliqué dans le packing cri
 
 
 ```r
-v4 = c("NbStructinPC","NbStructinPC.PR1","NbStructinPC.PR2")
+StructinPC = c("NbStructinPC","NbStructinPC.PR1","NbStructinPC.PR2")
 
-matriceStruct <- matrix(0, nrow=length(v4), ncol=length(listAtomSyn))
+matriceStruct <- matrix(0, nrow=length(StructinPC), ncol=length(listAtomSyn))
 
-rownames(matriceStruct) <- v4
+rownames(matriceStruct) <- StructinPC
 colnames(matriceStruct) <- sort.res
 
 
-for (i in 1:length(v2)){
+for (i in 1:length(NbResidues)){
   y = 0
-  for (j in 1:length(v3[1:26])) {
+  for (j in 1:length(Proteases[1:26])) {
     if (matrice[j,i] == 1){
         y = y+1
         matriceStruct[1,i] = y
     }
   }
 }
-dim(matriceStruct)
+matriceStruct
 ```
 
 ```
-[1]   3 159
+                 1_A 2_A 3_A 4_A 5_A 6_A 7_A 8_A 9_A 10_A 11_A 12_A 14_A 15_A 16_A 17_A 18_A 19_A 20_A 21_A 23_A 24_A 25_A 26_A 27_A 29_A 30_A 34_A 35_A 36_A 37_A 38_A 39_A 40_A 41_A 42_A 43_A 44_A 45_A 46_A 47_A 48_A 49_A 50_A 51_A 52_A 53_A 54_A 55_A 56_A 57_A 58_A 59_A 60_A 61_A 63_A 65_A 66_A
+NbStructinPC       5  19   5  24   4  26  23   6   3    2    3    9   10    1   11    9   15   11    9    5    2    3    3    3    3    5    1    9   14    7   18    7   11   15   14   15   17   19   15   22    3   11    8    5    8   13   23    8   20    3   12   11    2    6   16   13    6    1
+NbStructinPC.PR1   0   0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+NbStructinPC.PR2   0   0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+                 67_A 68_A 69_A 70_A 71_A 72_A 73_A 74_A 78_A 79_A 80_A 81_A 82_A 87_A 88_A 89_A 90_A 91_A 92_A 93_A 94_A 95_A 96_A 97_A 98_A 99_A 1_B 2_B 3_B 4_B 6_B 7_B 8_B 10_B 11_B 12_B 13_B 14_B 16_B 17_B 18_B 19_B 20_B 21_B 29_B 30_B 34_B 35_B 36_B 37_B 38_B 39_B 40_B 41_B 42_B 43_B 44_B 45_B
+NbStructinPC        7    8    6   14    7   21    5    2    1   16    4    9    4    5    5    5    3   13   17    5   11    3    7    3    8   10   6  16   4  11  18  18   4    4    1   19    1   17   11   22   16   22   12   13    2    2    5    6    2   16   10   13   20   14   17   16   20   11
+NbStructinPC.PR1    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+NbStructinPC.PR2    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+                 46_B 47_B 48_B 49_B 50_B 51_B 52_B 53_B 54_B 55_B 56_B 57_B 58_B 59_B 60_B 61_B 62_B 63_B 65_B 67_B 68_B 69_B 70_B 71_B 72_B 73_B 74_B 76_B 78_B 79_B 80_B 81_B 82_B 83_B 87_B 88_B 91_B 92_B 94_B 95_B 96_B 98_B 99_B
+NbStructinPC       17    4    8    3    2    4   10   18    6   15    1   11    3    3    6   16    1   16    7    2   14    2   15   11   16    1    3    1    1   19    8   16    5    2    2    1    6   13    7    2    8    5    5
+NbStructinPC.PR1    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+NbStructinPC.PR2    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
 ```
 
 ```r
@@ -388,19 +428,11 @@ D'autres résidus sont retrouvés dans la majorité des structures (>80%) : 4_A,
 
 2. Représenter ces valeurs graphiquement
 
-Pourquoi refaire un vecteur ???
-
 ```r
-v6=(1:159)
-
-for (i in 1:length(listAtomSyn)) {
-  v6[i] = matriceStruct[1,i]
-}
-?hist
-hist(v6,xlab = matriceStruct[1,])
+hist(NbStructinPC,xlab = matriceStruct[1,])
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 
 On va aussi faire un barplot pour voir le nombre pour chaque résidus
 
@@ -408,20 +440,13 @@ On va aussi faire un barplot pour voir le nombre pour chaque résidus
 barplot(NbStructinPC, las = 2, cex.names  = 0.6)
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-10-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-9-1.png" style="display: block; margin: auto;" />
  On voit des différences dans les chaînes A et B
 
 3. Calculer la moyenne et écart type de ce nombre
 
-Pourquoi vous n'utlisez pas les commandes `mean()` et `sd()` ?
- 
-
 
 ```r
-#sommeStruct = apply(matriceStruct,1,sum)
-#sommeStructPC.PR1 = sommeStruct[1]
-
-#moyennePC = (sommeStructPC)/(length(NbStructinPC))
 mean(matriceStruct[1,])
 ```
 
@@ -435,15 +460,6 @@ sd(matriceStruct[1,])
 
 ```
 [1] 6.383855
-```
-
-```r
-#a = 0
-#for (i in 1:length(NbStructinPC)) {
-#  a = a + ((NbStructinPC[i] - moyennePC)*(NbStructinPC[i] - moyennePC))
-#}
-
-#ecarttypePC = sqrt(a/(length(NbStructinPC)))
 ```
 
 
@@ -491,9 +507,9 @@ NbStructinPC.PR2   10    1    4    0    1    3    3   11    6    9    1    6    
 ```r
 ###version un peu longue
 
-for (i in 1:length(v2)){
+for (i in 1:length(NbResidues)){
   y = 0
-  for (j in 1:length(v3[1:26])) {
+  for (j in 1:length(Proteases[1:26])) {
     if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR1")){
         y = y+1
         
@@ -501,13 +517,40 @@ for (i in 1:length(v2)){
   matriceStruct[2,i] = y
   }
 }
+matriceStruct
 ```
-Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de v3
+
+```
+                 1_A 2_A 3_A 4_A 5_A 6_A 7_A 8_A 9_A 10_A 11_A 12_A 14_A 15_A 16_A 17_A 18_A 19_A 20_A 21_A 23_A 24_A 25_A 26_A 27_A 29_A 30_A 34_A 35_A 36_A 37_A 38_A 39_A 40_A 41_A 42_A 43_A 44_A 45_A 46_A 47_A 48_A 49_A 50_A 51_A 52_A 53_A 54_A 55_A 56_A 57_A 58_A 59_A 60_A 61_A 63_A 65_A 66_A
+NbStructinPC       5  19   5  24   4  26  23   6   3    2    3    9   10    1   11    9   15   11    9    5    2    3    3    3    3    5    1    9   14    7   18    7   11   15   14   15   17   19   15   22    3   11    8    5    8   13   23    8   20    3   12   11    2    6   16   13    6    1
+NbStructinPC.PR1   3  10   4  15   3  15  12   4   3    1    1    7    7    1    7    5   12    7    8    5    2    3    3    3    3    3    0    8   12    7   14    7    7    6    4    6   11   11    7   12    2    7    8    5    5   11   14    3   10    3    7    5    0    1   12    7    1    1
+NbStructinPC.PR2   2   9   1   9   1  11  11   2   0    1    2    2    3    0    4    4    3    4    1    0    0    0    0    0    0    2    1    1    2    0    4    0    4    9   10    9    6    8    8   10    1    4    0    0    3    2    9    5   10    0    5    6    2    5    4    6    5    0
+                 67_A 68_A 69_A 70_A 71_A 72_A 73_A 74_A 78_A 79_A 80_A 81_A 82_A 87_A 88_A 89_A 90_A 91_A 92_A 93_A 94_A 95_A 96_A 97_A 98_A 99_A 1_B 2_B 3_B 4_B 6_B 7_B 8_B 10_B 11_B 12_B 13_B 14_B 16_B 17_B 18_B 19_B 20_B 21_B 29_B 30_B 34_B 35_B 36_B 37_B 38_B 39_B 40_B 41_B 42_B 43_B 44_B 45_B
+NbStructinPC        7    8    6   14    7   21    5    2    1   16    4    9    4    5    5    5    3   13   17    5   11    3    7    3    8   10   6  16   4  11  18  18   4    4    1   19    1   17   11   22   16   22   12   13    2    2    5    6    2   16   10   13   20   14   17   16   20   11
+NbStructinPC.PR1    6    3    3    9    6   15    5    0    0    9    3    5    2    3    5    5    3   11   15    3    9    3    4    3    3    3   0   8   1  10  12   7   1    0    0   11    0   10    7   12    8   12    6    5    0    0    5    6    2    7    7    7   12    7    8    9   11    3
+NbStructinPC.PR2    1    5    3    5    1    6    0    2    1    7    1    4    2    2    0    0    0    2    2    2    2    0    3    0    5    7   6   8   3   1   6  11   3    4    1    8    1    7    4   10    8   10    6    8    2    2    0    0    0    9    3    6    8    7    9    7    9    8
+                 46_B 47_B 48_B 49_B 50_B 51_B 52_B 53_B 54_B 55_B 56_B 57_B 58_B 59_B 60_B 61_B 62_B 63_B 65_B 67_B 68_B 69_B 70_B 71_B 72_B 73_B 74_B 76_B 78_B 79_B 80_B 81_B 82_B 83_B 87_B 88_B 91_B 92_B 94_B 95_B 96_B 98_B 99_B
+NbStructinPC       17    4    8    3    2    4   10   18    6   15    1   11    3    3    6   16    1   16    7    2   14    2   15   11   16    1    3    1    1   19    8   16    5    2    2    1    6   13    7    2    8    5    5
+NbStructinPC.PR1    7    3    4    3    1    1    7    7    0    6    0    5    2    0    0    9    1   12    5    0    6    0   11   11   12    0    0    0    1   11    8    9    4    0    0    0    5   12    2    0    4    0    0
+NbStructinPC.PR2   10    1    4    0    1    3    3   11    6    9    1    6    1    3    6    7    0    4    2    2    8    2    4    0    4    1    3    1    0    8    0    7    1    2    2    1    1    1    5    2    4    5    5
+```
+Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de Proteases
 
 
 2. Représenter ces valeurs graphiquement
 
 
+```r
+hist(NbStructinPC.PR1,xlab = matriceStruct[1,])
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-12-1.png" style="display: block; margin: auto;" />
+
+```r
+barplot(NbStructinPC.PR1, las = 2, cex.names  = 0.6)
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-13-1.png" style="display: block; margin: auto;" />
 
 
 3. Calculer la moyenne et écart type de ce nombre
@@ -537,23 +580,49 @@ sd(matriceStruct["NbStructinPC.PR1",])
 
 
 ```r
-for (i in 1:length(v2)){
+for (i in 1:length(NbResidues)){
   y = 0
-  for (j in 1:length(v3[1:26])) {
+  for (j in 1:length(Proteases[1:26])) {
     if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR2")){
         y = y+1
-        
     }
   matriceStruct[3,i] = y
   }
 }
+matriceStruct
 ```
 
-Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de v3
+```
+                 1_A 2_A 3_A 4_A 5_A 6_A 7_A 8_A 9_A 10_A 11_A 12_A 14_A 15_A 16_A 17_A 18_A 19_A 20_A 21_A 23_A 24_A 25_A 26_A 27_A 29_A 30_A 34_A 35_A 36_A 37_A 38_A 39_A 40_A 41_A 42_A 43_A 44_A 45_A 46_A 47_A 48_A 49_A 50_A 51_A 52_A 53_A 54_A 55_A 56_A 57_A 58_A 59_A 60_A 61_A 63_A 65_A 66_A
+NbStructinPC       5  19   5  24   4  26  23   6   3    2    3    9   10    1   11    9   15   11    9    5    2    3    3    3    3    5    1    9   14    7   18    7   11   15   14   15   17   19   15   22    3   11    8    5    8   13   23    8   20    3   12   11    2    6   16   13    6    1
+NbStructinPC.PR1   3  10   4  15   3  15  12   4   3    1    1    7    7    1    7    5   12    7    8    5    2    3    3    3    3    3    0    8   12    7   14    7    7    6    4    6   11   11    7   12    2    7    8    5    5   11   14    3   10    3    7    5    0    1   12    7    1    1
+NbStructinPC.PR2   2   9   1   9   1  11  11   2   0    1    2    2    3    0    4    4    3    4    1    0    0    0    0    0    0    2    1    1    2    0    4    0    4    9   10    9    6    8    8   10    1    4    0    0    3    2    9    5   10    0    5    6    2    5    4    6    5    0
+                 67_A 68_A 69_A 70_A 71_A 72_A 73_A 74_A 78_A 79_A 80_A 81_A 82_A 87_A 88_A 89_A 90_A 91_A 92_A 93_A 94_A 95_A 96_A 97_A 98_A 99_A 1_B 2_B 3_B 4_B 6_B 7_B 8_B 10_B 11_B 12_B 13_B 14_B 16_B 17_B 18_B 19_B 20_B 21_B 29_B 30_B 34_B 35_B 36_B 37_B 38_B 39_B 40_B 41_B 42_B 43_B 44_B 45_B
+NbStructinPC        7    8    6   14    7   21    5    2    1   16    4    9    4    5    5    5    3   13   17    5   11    3    7    3    8   10   6  16   4  11  18  18   4    4    1   19    1   17   11   22   16   22   12   13    2    2    5    6    2   16   10   13   20   14   17   16   20   11
+NbStructinPC.PR1    6    3    3    9    6   15    5    0    0    9    3    5    2    3    5    5    3   11   15    3    9    3    4    3    3    3   0   8   1  10  12   7   1    0    0   11    0   10    7   12    8   12    6    5    0    0    5    6    2    7    7    7   12    7    8    9   11    3
+NbStructinPC.PR2    1    5    3    5    1    6    0    2    1    7    1    4    2    2    0    0    0    2    2    2    2    0    3    0    5    7   6   8   3   1   6  11   3    4    1    8    1    7    4   10    8   10    6    8    2    2    0    0    0    9    3    6    8    7    9    7    9    8
+                 46_B 47_B 48_B 49_B 50_B 51_B 52_B 53_B 54_B 55_B 56_B 57_B 58_B 59_B 60_B 61_B 62_B 63_B 65_B 67_B 68_B 69_B 70_B 71_B 72_B 73_B 74_B 76_B 78_B 79_B 80_B 81_B 82_B 83_B 87_B 88_B 91_B 92_B 94_B 95_B 96_B 98_B 99_B
+NbStructinPC       17    4    8    3    2    4   10   18    6   15    1   11    3    3    6   16    1   16    7    2   14    2   15   11   16    1    3    1    1   19    8   16    5    2    2    1    6   13    7    2    8    5    5
+NbStructinPC.PR1    7    3    4    3    1    1    7    7    0    6    0    5    2    0    0    9    1   12    5    0    6    0   11   11   12    0    0    0    1   11    8    9    4    0    0    0    5   12    2    0    4    0    0
+NbStructinPC.PR2   10    1    4    0    1    3    3   11    6    9    1    6    1    3    6    7    0    4    2    2    8    2    4    0    4    1    3    1    0    8    0    7    1    2    2    1    1    1    5    2    4    5    5
+```
+
+Dans ce chunck j'ai modifié la ligne 425, où il faut supprimer les trois dernières valeurs de Proteases
 
 2. Représenter ces valeurs graphiquement
 
 
+```r
+hist(NbStructinPC.PR2,xlab = "")
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-16-1.png" style="display: block; margin: auto;" />
+
+```r
+barplot(NbStructinPC.PR2, las = 2, cex.names  = 0.6)
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-17-1.png" style="display: block; margin: auto;" />
 
 
 3. Calculer la moyenne et écart type de ce nombre
@@ -589,11 +658,20 @@ text(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",],
      colnames(matriceStruct), pos=3, offset=0.3, cex=0.5 )
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-18-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-19-1.png" style="display: block; margin: auto;" />
 
 
 On calcule ensuite la corrélation entre ces deux variables
+
+
+```r
 cor(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",])
+```
+
+```
+[1] 0.465773
+```
+
 
 
 ### Déterminer les résidus impliqués dans le packing cristallin dans toutes les structures
@@ -619,42 +697,17 @@ cor(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",])
 
 
 ```r
-v5 = c("Backbone","ChaineLat")
-v6 = 1:6039  ##Il faudrait automatiser ces valeurs
-sort.res
-```
+list.bk = c("C","O","N","CA")
+Localisation = c("Backbone","ChaineLat")
+NbAtomeinPC = 1:6039  ##Il faudrait automatiser ces valeurs
 
-```
-  [1] "1_A"  "2_A"  "3_A"  "4_A"  "5_A"  "6_A"  "7_A"  "8_A"  "9_A"  "10_A" "11_A" "12_A" "14_A" "15_A" "16_A" "17_A" "18_A" "19_A" "20_A" "21_A" "23_A" "24_A" "25_A" "26_A" "27_A" "29_A" "30_A" "34_A" "35_A" "36_A" "37_A" "38_A" "39_A" "40_A" "41_A" "42_A" "43_A" "44_A" "45_A" "46_A" "47_A" "48_A"
- [43] "49_A" "50_A" "51_A" "52_A" "53_A" "54_A" "55_A" "56_A" "57_A" "58_A" "59_A" "60_A" "61_A" "63_A" "65_A" "66_A" "67_A" "68_A" "69_A" "70_A" "71_A" "72_A" "73_A" "74_A" "78_A" "79_A" "80_A" "81_A" "82_A" "87_A" "88_A" "89_A" "90_A" "91_A" "92_A" "93_A" "94_A" "95_A" "96_A" "97_A" "98_A" "99_A"
- [85] "1_B"  "2_B"  "3_B"  "4_B"  "6_B"  "7_B"  "8_B"  "10_B" "11_B" "12_B" "13_B" "14_B" "16_B" "17_B" "18_B" "19_B" "20_B" "21_B" "29_B" "30_B" "34_B" "35_B" "36_B" "37_B" "38_B" "39_B" "40_B" "41_B" "42_B" "43_B" "44_B" "45_B" "46_B" "47_B" "48_B" "49_B" "50_B" "51_B" "52_B" "53_B" "54_B" "55_B"
-[127] "56_B" "57_B" "58_B" "59_B" "60_B" "61_B" "62_B" "63_B" "65_B" "67_B" "68_B" "69_B" "70_B" "71_B" "72_B" "73_B" "74_B" "76_B" "78_B" "79_B" "80_B" "81_B" "82_B" "83_B" "87_B" "88_B" "91_B" "92_B" "94_B" "95_B" "96_B" "98_B" "99_B"
-```
+matrice3 <- matrix(0, nrow=length(Localisation), ncol=length(NbResidues))
 
-```r
-matrice3 <- matrix(0, nrow=length(v5), ncol=length(v2))
-
-rownames(matrice3) <- v5
+rownames(matrice3) <- Localisation
 colnames(matrice3) <- sort.res
 
-matrice3
-```
-
-```
-          1_A 2_A 3_A 4_A 5_A 6_A 7_A 8_A 9_A 10_A 11_A 12_A 14_A 15_A 16_A 17_A 18_A 19_A 20_A 21_A 23_A 24_A 25_A 26_A 27_A 29_A 30_A 34_A 35_A 36_A 37_A 38_A 39_A 40_A 41_A 42_A 43_A 44_A 45_A 46_A 47_A 48_A 49_A 50_A 51_A 52_A 53_A 54_A 55_A 56_A 57_A 58_A 59_A 60_A 61_A 63_A 65_A 66_A 67_A
-Backbone    0   0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-ChaineLat   0   0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-          68_A 69_A 70_A 71_A 72_A 73_A 74_A 78_A 79_A 80_A 81_A 82_A 87_A 88_A 89_A 90_A 91_A 92_A 93_A 94_A 95_A 96_A 97_A 98_A 99_A 1_B 2_B 3_B 4_B 6_B 7_B 8_B 10_B 11_B 12_B 13_B 14_B 16_B 17_B 18_B 19_B 20_B 21_B 29_B 30_B 34_B 35_B 36_B 37_B 38_B 39_B 40_B 41_B 42_B 43_B 44_B 45_B 46_B 47_B
-Backbone     0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-ChaineLat    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-          48_B 49_B 50_B 51_B 52_B 53_B 54_B 55_B 56_B 57_B 58_B 59_B 60_B 61_B 62_B 63_B 65_B 67_B 68_B 69_B 70_B 71_B 72_B 73_B 74_B 76_B 78_B 79_B 80_B 81_B 82_B 83_B 87_B 88_B 91_B 92_B 94_B 95_B 96_B 98_B 99_B
-Backbone     0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-ChaineLat    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-```
-
-```r
 listAtomSyn = c()
-for (i in v1){
+for (i in NbProt){
   filein = listFile[i]
   N = read.table(paste("fileByProt3",filein,sep="/"))
   listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
@@ -663,7 +716,7 @@ for (i in v1){
 
 listAtomSyn2 = c()
 
-for (i in v1){
+for (i in NbProt){
   filein = listFile[i]
   N = read.table(paste("fileByProt3",filein,sep="/"))
   listAtom = (paste(as.character(N[,3])))
@@ -671,23 +724,14 @@ for (i in v1){
 }
 
 names(listAtomSyn) = listAtomSyn2
-sort.res
-```
 
-```
-  [1] "1_A"  "2_A"  "3_A"  "4_A"  "5_A"  "6_A"  "7_A"  "8_A"  "9_A"  "10_A" "11_A" "12_A" "14_A" "15_A" "16_A" "17_A" "18_A" "19_A" "20_A" "21_A" "23_A" "24_A" "25_A" "26_A" "27_A" "29_A" "30_A" "34_A" "35_A" "36_A" "37_A" "38_A" "39_A" "40_A" "41_A" "42_A" "43_A" "44_A" "45_A" "46_A" "47_A" "48_A"
- [43] "49_A" "50_A" "51_A" "52_A" "53_A" "54_A" "55_A" "56_A" "57_A" "58_A" "59_A" "60_A" "61_A" "63_A" "65_A" "66_A" "67_A" "68_A" "69_A" "70_A" "71_A" "72_A" "73_A" "74_A" "78_A" "79_A" "80_A" "81_A" "82_A" "87_A" "88_A" "89_A" "90_A" "91_A" "92_A" "93_A" "94_A" "95_A" "96_A" "97_A" "98_A" "99_A"
- [85] "1_B"  "2_B"  "3_B"  "4_B"  "6_B"  "7_B"  "8_B"  "10_B" "11_B" "12_B" "13_B" "14_B" "16_B" "17_B" "18_B" "19_B" "20_B" "21_B" "29_B" "30_B" "34_B" "35_B" "36_B" "37_B" "38_B" "39_B" "40_B" "41_B" "42_B" "43_B" "44_B" "45_B" "46_B" "47_B" "48_B" "49_B" "50_B" "51_B" "52_B" "53_B" "54_B" "55_B"
-[127] "56_B" "57_B" "58_B" "59_B" "60_B" "61_B" "62_B" "63_B" "65_B" "67_B" "68_B" "69_B" "70_B" "71_B" "72_B" "73_B" "74_B" "76_B" "78_B" "79_B" "80_B" "81_B" "82_B" "83_B" "87_B" "88_B" "91_B" "92_B" "94_B" "95_B" "96_B" "98_B" "99_B"
-```
-
-```r
 for (j in 1:length(sort.res)) {
-  for (k in 1:length(v6)) {
+  for (k in 1:length(NbAtomeinPC)) {
     
     if (sort.res[j] == listAtomSyn[k]){
     
-      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+      #if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+      if (is.element(listAtomSyn2[k], list.bk)==TRUE){
        
        matrice3[1,sort.res[j]] = matrice3[1,sort.res[j]] + 1
        }else{
@@ -712,44 +756,33 @@ Backbone    16    8    2    8   19   19   15    8    4    0    0    0    2    4 
 ChaineLat    0    0    0    0    0   92    7   41    0   17    6    3   16   52    1   41   22    4   30    8   32    0   50    0    7    1    0   39    0   41    8    2    4    3   12   48    0    0   10   19    4
 ```
 
-Il faudrait donner des noms de variables plus claires, qui permettent de comprendre ce que contient le vecteur, la matrice, ....
+
+Visualisation du nombre d'atomes impliqués dans le packing cristallin
+
+```r
+pheatmap(matrice3, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 250), col = c("white", "wheat", "yellow", "orange", "red"))
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-23-1.png" style="display: block; margin: auto;" />
+
+
+A refaire pour le nombre de protéine : matrice avec des 0 et 1
+
+
+
+
+
 
 
 ```r
-v5 = c("Backbone","ChaineLat")
-v6 = 1:3589   # d'où vient le 3589????
-sort.res
-```
+Localisation = c("Backbone","ChaineLat")
+NbAtomeinPC.1 = 1:3589   # d'où vient le 3589????
 
-```
-  [1] "1_A"  "2_A"  "3_A"  "4_A"  "5_A"  "6_A"  "7_A"  "8_A"  "9_A"  "10_A" "11_A" "12_A" "14_A" "15_A" "16_A" "17_A" "18_A" "19_A" "20_A" "21_A" "23_A" "24_A" "25_A" "26_A" "27_A" "29_A" "30_A" "34_A" "35_A" "36_A" "37_A" "38_A" "39_A" "40_A" "41_A" "42_A" "43_A" "44_A" "45_A" "46_A" "47_A" "48_A"
- [43] "49_A" "50_A" "51_A" "52_A" "53_A" "54_A" "55_A" "56_A" "57_A" "58_A" "59_A" "60_A" "61_A" "63_A" "65_A" "66_A" "67_A" "68_A" "69_A" "70_A" "71_A" "72_A" "73_A" "74_A" "78_A" "79_A" "80_A" "81_A" "82_A" "87_A" "88_A" "89_A" "90_A" "91_A" "92_A" "93_A" "94_A" "95_A" "96_A" "97_A" "98_A" "99_A"
- [85] "1_B"  "2_B"  "3_B"  "4_B"  "6_B"  "7_B"  "8_B"  "10_B" "11_B" "12_B" "13_B" "14_B" "16_B" "17_B" "18_B" "19_B" "20_B" "21_B" "29_B" "30_B" "34_B" "35_B" "36_B" "37_B" "38_B" "39_B" "40_B" "41_B" "42_B" "43_B" "44_B" "45_B" "46_B" "47_B" "48_B" "49_B" "50_B" "51_B" "52_B" "53_B" "54_B" "55_B"
-[127] "56_B" "57_B" "58_B" "59_B" "60_B" "61_B" "62_B" "63_B" "65_B" "67_B" "68_B" "69_B" "70_B" "71_B" "72_B" "73_B" "74_B" "76_B" "78_B" "79_B" "80_B" "81_B" "82_B" "83_B" "87_B" "88_B" "91_B" "92_B" "94_B" "95_B" "96_B" "98_B" "99_B"
-```
+matrice3PR1 <- matrix(0, nrow=length(Localisation), ncol=length(NbResidues))
 
-```r
-matrice3PR1 <- matrix(0, nrow=length(v5), ncol=length(v2))
-
-rownames(matrice3PR1) <- v5
+rownames(matrice3PR1) <- Localisation
 colnames(matrice3PR1) <- sort.res
 
-matrice3PR1
-```
-
-```
-          1_A 2_A 3_A 4_A 5_A 6_A 7_A 8_A 9_A 10_A 11_A 12_A 14_A 15_A 16_A 17_A 18_A 19_A 20_A 21_A 23_A 24_A 25_A 26_A 27_A 29_A 30_A 34_A 35_A 36_A 37_A 38_A 39_A 40_A 41_A 42_A 43_A 44_A 45_A 46_A 47_A 48_A 49_A 50_A 51_A 52_A 53_A 54_A 55_A 56_A 57_A 58_A 59_A 60_A 61_A 63_A 65_A 66_A 67_A
-Backbone    0   0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-ChaineLat   0   0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-          68_A 69_A 70_A 71_A 72_A 73_A 74_A 78_A 79_A 80_A 81_A 82_A 87_A 88_A 89_A 90_A 91_A 92_A 93_A 94_A 95_A 96_A 97_A 98_A 99_A 1_B 2_B 3_B 4_B 6_B 7_B 8_B 10_B 11_B 12_B 13_B 14_B 16_B 17_B 18_B 19_B 20_B 21_B 29_B 30_B 34_B 35_B 36_B 37_B 38_B 39_B 40_B 41_B 42_B 43_B 44_B 45_B 46_B 47_B
-Backbone     0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-ChaineLat    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-          48_B 49_B 50_B 51_B 52_B 53_B 54_B 55_B 56_B 57_B 58_B 59_B 60_B 61_B 62_B 63_B 65_B 67_B 68_B 69_B 70_B 71_B 72_B 73_B 74_B 76_B 78_B 79_B 80_B 81_B 82_B 83_B 87_B 88_B 91_B 92_B 94_B 95_B 96_B 98_B 99_B
-Backbone     0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-ChaineLat    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-```
-
-```r
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
 
 names(type) =c("1hhp_packCryst.pdb","1hih_packCryst.pdb","1hii_packCryst.pdb","1hiv_packCryst.pdb","1hpv_packCryst.pdb","1hsh_packCryst.pdb","1hsi_packCryst.pdb","1ivp_packCryst.pdb","1sdt_packCryst.pdb","2hb3_packCryst.pdb","2hb4_packCryst.pdb","2hpe_packCryst.pdb","2hpf_packCryst.pdb","2ien_packCryst.pdb","2mip_packCryst.pdb","2nph_packCryst.pdb","2z4o_packCryst.pdb","3ebz_packCryst.pdb","3ec0_packCryst.pdb","3ecg_packCryst.pdb","3ekv_packCryst.pdb","3nu3_packCryst.pdb","3phv_packCryst.pdb","3s45_packCryst.pdb","4hla_packCryst.pdb","4ll3_packCryst.pdb")
@@ -758,21 +791,23 @@ ind.PR1 = names(which(type == "PR1"))
 
 #ici je ne comprends pas pourquoi vous faites une double boucle
 listAtomSyn = c()
-for (j in v1) {
+pp = NULL
+for (j in NbProt) {
   for (i in 1:length(ind.PR1)){
     filein = listFile[j]
     N = read.table(paste("fileByProt3",filein,sep="/"))
     if((filein) == (ind.PR1[i])){
+      pp = c(pp, filein)
       listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
       listAtomSyn = (c(listAtom,listAtomSyn))
     }
   }
 }
 
-### j'aurais fait comme ca, mais je n'ai pas les mêmes résultats que vous
+### j'aurais fait comme ca, mais je n'ai pas les mêmes résultats que vous : ca ne marche pas.....
 listAtomSyn2 = NULL
 
-for(filein in ind.PR1){
+for(filein in names(type)){
   packPDB.file = read.table(paste("fileByProt3",filein,sep="/"))
   listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
   listAtomSyn2 = c(listAtom,listAtomSyn2)
@@ -783,7 +818,7 @@ for(filein in ind.PR1){
 
 listAtomSyn2 = c()
 
-for (j in v1){
+for (j in NbProt){
   for (i in 1:length(ind.PR1)) {
     filein = listFile[j]
     N = read.table(paste("fileByProt3",filein,sep="/"))
@@ -798,7 +833,7 @@ for (j in v1){
 names(listAtomSyn) = listAtomSyn2
 
 for (j in 1:length(sort.res)) {
-  for (k in 1:length(v6)) {
+  for (k in 1:length(NbAtomeinPC.1)) {
     
     if (sort.res[j] == listAtomSyn[k]){
     
@@ -828,49 +863,33 @@ ChaineLat    0    0    0    0    0   53    0    7    0    7    3    0    0   31 
 ```
 
 
+```r
+pheatmap(matrice3PR1, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 150), col = c("white", "wheat", "yellow", "orange", "red"))
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-26-1.png" style="display: block; margin: auto;" />
+
+
+
+
+
 
 ```r
-v5 = c("Backbone","ChaineLat")
-v6 = 1:2450
-sort.res
-```
+Localisation = c("Backbone","ChaineLat")
+NbAtomeinPC.2 = 1:2450
 
-```
-  [1] "1_A"  "2_A"  "3_A"  "4_A"  "5_A"  "6_A"  "7_A"  "8_A"  "9_A"  "10_A" "11_A" "12_A" "14_A" "15_A" "16_A" "17_A" "18_A" "19_A" "20_A" "21_A" "23_A" "24_A" "25_A" "26_A" "27_A" "29_A" "30_A" "34_A" "35_A" "36_A" "37_A" "38_A" "39_A" "40_A" "41_A" "42_A" "43_A" "44_A" "45_A" "46_A" "47_A" "48_A"
- [43] "49_A" "50_A" "51_A" "52_A" "53_A" "54_A" "55_A" "56_A" "57_A" "58_A" "59_A" "60_A" "61_A" "63_A" "65_A" "66_A" "67_A" "68_A" "69_A" "70_A" "71_A" "72_A" "73_A" "74_A" "78_A" "79_A" "80_A" "81_A" "82_A" "87_A" "88_A" "89_A" "90_A" "91_A" "92_A" "93_A" "94_A" "95_A" "96_A" "97_A" "98_A" "99_A"
- [85] "1_B"  "2_B"  "3_B"  "4_B"  "6_B"  "7_B"  "8_B"  "10_B" "11_B" "12_B" "13_B" "14_B" "16_B" "17_B" "18_B" "19_B" "20_B" "21_B" "29_B" "30_B" "34_B" "35_B" "36_B" "37_B" "38_B" "39_B" "40_B" "41_B" "42_B" "43_B" "44_B" "45_B" "46_B" "47_B" "48_B" "49_B" "50_B" "51_B" "52_B" "53_B" "54_B" "55_B"
-[127] "56_B" "57_B" "58_B" "59_B" "60_B" "61_B" "62_B" "63_B" "65_B" "67_B" "68_B" "69_B" "70_B" "71_B" "72_B" "73_B" "74_B" "76_B" "78_B" "79_B" "80_B" "81_B" "82_B" "83_B" "87_B" "88_B" "91_B" "92_B" "94_B" "95_B" "96_B" "98_B" "99_B"
-```
+matrice3PR2 <- matrix(0, nrow=length(Localisation), ncol=length(NbResidues))
 
-```r
-matrice3PR2 <- matrix(0, nrow=length(v5), ncol=length(v2))
-
-rownames(matrice3PR2) <- v5
+rownames(matrice3PR2) <- Localisation
 colnames(matrice3PR2) <- sort.res
 
-matrice3PR2
-```
-
-```
-          1_A 2_A 3_A 4_A 5_A 6_A 7_A 8_A 9_A 10_A 11_A 12_A 14_A 15_A 16_A 17_A 18_A 19_A 20_A 21_A 23_A 24_A 25_A 26_A 27_A 29_A 30_A 34_A 35_A 36_A 37_A 38_A 39_A 40_A 41_A 42_A 43_A 44_A 45_A 46_A 47_A 48_A 49_A 50_A 51_A 52_A 53_A 54_A 55_A 56_A 57_A 58_A 59_A 60_A 61_A 63_A 65_A 66_A 67_A
-Backbone    0   0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-ChaineLat   0   0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-          68_A 69_A 70_A 71_A 72_A 73_A 74_A 78_A 79_A 80_A 81_A 82_A 87_A 88_A 89_A 90_A 91_A 92_A 93_A 94_A 95_A 96_A 97_A 98_A 99_A 1_B 2_B 3_B 4_B 6_B 7_B 8_B 10_B 11_B 12_B 13_B 14_B 16_B 17_B 18_B 19_B 20_B 21_B 29_B 30_B 34_B 35_B 36_B 37_B 38_B 39_B 40_B 41_B 42_B 43_B 44_B 45_B 46_B 47_B
-Backbone     0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-ChaineLat    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   0   0   0   0   0   0   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-          48_B 49_B 50_B 51_B 52_B 53_B 54_B 55_B 56_B 57_B 58_B 59_B 60_B 61_B 62_B 63_B 65_B 67_B 68_B 69_B 70_B 71_B 72_B 73_B 74_B 76_B 78_B 79_B 80_B 81_B 82_B 83_B 87_B 88_B 91_B 92_B 94_B 95_B 96_B 98_B 99_B
-Backbone     0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-ChaineLat    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-```
-
-```r
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
 
 names(type) =c("1hhp_packCryst.pdb","1hih_packCryst.pdb","1hii_packCryst.pdb","1hiv_packCryst.pdb","1hpv_packCryst.pdb","1hsh_packCryst.pdb","1hsi_packCryst.pdb","1ivp_packCryst.pdb","1sdt_packCryst.pdb","2hb3_packCryst.pdb","2hb4_packCryst.pdb","2hpe_packCryst.pdb","2hpf_packCryst.pdb","2ien_packCryst.pdb","2mip_packCryst.pdb","2nph_packCryst.pdb","2z4o_packCryst.pdb","3ebz_packCryst.pdb","3ec0_packCryst.pdb","3ecg_packCryst.pdb","3ekv_packCryst.pdb","3nu3_packCryst.pdb","3phv_packCryst.pdb","3s45_packCryst.pdb","4hla_packCryst.pdb","4ll3_packCryst.pdb")
 ind.PR2 = names(which(type == "PR2"))
 
 listAtomSyn = c()
-for (j in v1) {
+for (j in NbProt) {
   for (i in 1:length(ind.PR2)){
     filein = listFile[j]
     if((filein) == (ind.PR2[i])){
@@ -882,7 +901,7 @@ for (j in v1) {
 }
 listAtomSyn2 = c()
 
-for (j in v1){
+for (j in NbProt){
   for (i in 1:length(ind.PR2)) {
     filein = listFile[j]
     if((filein) == (ind.PR2[i])){
@@ -893,14 +912,17 @@ for (j in v1){
   }
 }
 
+
+list.bk = c("C","CA","N","O")
 names(listAtomSyn) = listAtomSyn2
 
 for (j in 1:length(sort.res)) {
-  for (k in 1:length(v6)) {
+  for (k in 1:length(NbAtomeinPC.2)) {
     
     if (sort.res[j] == listAtomSyn[k]){
     
-      if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+      #if ((((listAtomSyn2)[k]) =="C") || (((listAtomSyn2)[k]) == "CA") || (((listAtomSyn2)[k]) == "O") || (((listAtomSyn2)[k]) == "N")){
+      if (is.element(listAtomSyn2[k], list.bk)==TRUE){
        
        matrice3PR2[1,sort.res[j]] = matrice3PR2[1,sort.res[j]] + 1
        }else{
@@ -909,7 +931,6 @@ for (j in 1:length(sort.res)) {
     }
   }
 }
-
 matrice3PR2
 ```
 
@@ -928,4 +949,12 @@ ChaineLat    0    0    0    0    0   39    7   34    0   10    3    3   16   21 
 ```r
 matricetotale = matrice3PR1 + matrice3PR2
 ```
+
+```r
+pheatmap(matrice3PR2, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 70, 100), col = c("white", "wheat", "yellow", "orange", "red"))
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-28-1.png" style="display: block; margin: auto;" />
+
+
 
