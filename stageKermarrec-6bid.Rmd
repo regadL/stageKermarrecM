@@ -282,6 +282,7 @@ for (i in 1:length(NbResidues)){
 }
 matriceStruct
 ```
+
 ```{r}
 type = matrice[,ncol(matrice)]
 names(type)
@@ -323,6 +324,56 @@ mean(matriceStruct[1,])
 sd(matriceStruct[1,])
 ```
 
+
+### representation du packing sur les structures 3D.
+$\rightarrow$ liste des résidus dans le packing dans au  moins une structure de PR2
+sous pymol :
+
+1. tous les résidus impliqués dans le packing dans au moins une structure de PR
+prendre les colnames de la matrice (matrice)
+
+* ouvrir la structure de PR2 complexée avec le darunavir (DRV, code PDB 3EBZ).
+* Représenter la structure en cartoon : couleur ???
+* les résidus impliqués dans le packing en rouge
+
+
+```{r}
+resSel <- gsub("_A", "", colnames(matrice)[grep("_A", colnames(matrice))])
+resSel2 <- paste(resSel, collapse="+")
+paste("select respackA, resid ", resSel2,  " and chain A", sep="")
+```
+
+
+2. tous les résidus conservés chez PR1 et PR2
+même procédure 
+
+```{r}
+count.allPR <- apply(matrice, 2, sum)
+hist(count.allPR)
+dim(matrice)
+
+sort(round(count.allPR/nrow(matrice), 2))
+
+```
+
+
+
+3. ceux qui sont spécifiques à PR2
+ceux qui sont beaucoup vus chez PR2 et pas chez PR1
+
+Bien lister les résidus qui ont été colorés
+
+
+
+4. ceux qui sont spécifiques à PR1 (structure de PR1 complexé au DRV : PDB code : 2ien)
+ceux qui sont beaucoup vus chez PR1 et pas chez PR2
+
+
+![legende](figures/structure_2ien.png){width=65%}
+
+
+
+Faire pareil pour les résidus spécifique de PR1 : 
 
 
 ### Calculer le nombre de structure dans lequel un résidu est impliqué dans le packing cristallin pour les PR1
@@ -527,6 +578,8 @@ listAtomSyn = c()
 listAtomSyn = NULL
 listAtomSyn2 = NULL
 
+pp =NULL
+
 for (j in NbProt) {
   for (i in 1:length(ind.PR1)){
     filein = listFile[j]
@@ -654,30 +707,21 @@ pheatmap(matrice3PR2, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1,
 
 
 
-
-
-
-
-
-
-
-
-
 A refaire pour le nombre de protéine : matrice avec des 0 et 1
 
 ```{r}
 list.bk = c("C","O","N","CA")
 Proteases = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
 
-matriceBackBone <- matrix(0, nrow=length(Proteases), ncol=length(NbResidues))
+matriceBackBonePR <- matrix(0, nrow=length(Proteases), ncol=length(NbResidues))
 
-rownames(matriceBackBone) <- Proteases
-colnames(matriceBackBone) <- sort.res
+rownames(matriceBackBonePR) <- Proteases
+colnames(matriceBackBonePR) <- sort.res
 
-matriceChaineLat <- matrix(0, nrow=length(Proteases), ncol=length(NbResidues))
+matriceChaineLatPR <- matrix(0, nrow=length(Proteases), ncol=length(NbResidues))
 
-rownames(matriceChaineLat) <- Proteases
-colnames(matriceChaineLat) <- sort.res
+rownames(matriceChaineLatPR) <- Proteases
+colnames(matriceChaineLatPR) <- sort.res
 
 
 NbAtomeinPC = c(1:length(listAtomSyn2))
@@ -701,17 +745,32 @@ for (i in 1:length(Proteases)) {
       if (listAtomSyn[k] == sort.res[j]){
         if (is.element(listAtomSyn2[k], list.bk)==TRUE){
        
-         matriceBackBone[Proteases[i],sort.res[j]] = 1
+         matriceBackBonePR[Proteases[i],sort.res[j]] = 1
         }else{
-         matriceChaineLat[Proteases[i],sort.res[j]] = 1
+         matriceChaineLatPR[Proteases[i],sort.res[j]] = 1
         }
       }
     }
   }
 }
 
-matriceBackBone
-matriceChaineLat
+matriceBackBonePR
+matriceChaineLatPR
+```
+
+
+
+```{r}
+library(pheatmap)
+?pheatmap
+pheatmap::pheatmap(matriceBackBonePR)
+pheatmap(matriceBackBonePR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
+
+library(pheatmap)
+?pheatmap
+pheatmap::pheatmap(matriceChaineLatPR)
+pheatmap(matriceChaineLatPR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
+
 ```
 
 
@@ -719,19 +778,137 @@ matriceChaineLat
 
 
 
+A refaire pour le nombre de protéine : matrice avec des 0 et 1 pour PR1
+```{r}
+ProtPR1 = c("1hhp","1hih","1hiv","1hpv","1sdt", "2hb3","2hb4","2ien","2nph","2z4o","3ekv","3nu3","3phv","4hla","4ll3")
+
+list.bk = c("C","O","N","CA")
+
+matriceBackBonePR1 <- matrix(0, nrow=length(ProtPR1), ncol=length(NbResidues))
+
+rownames(matriceBackBonePR1) <- ProtPR1
+colnames(matriceBackBonePR1) <- sort.res
+
+matriceChaineLatPR1 <- matrix(0, nrow=length(ProtPR1), ncol=length(NbResidues))
+
+rownames(matriceChaineLatPR1) <- ProtPR1
+colnames(matriceChaineLatPR1) <- sort.res
 
 
+NbAtomeinPC = c(1:length(listAtomSyn2))
+names(listAtomSyn) = listAtomSyn2
+for (i in 1:length(ind.PR1)) {
+  
+  listAtomSyn = NULL
+  listAtomSyn2 = NULL
+  
+  
+  filein = ind.PR1[i]
+  N = read.table(paste("fileByProt3",filein,sep="/"))
+  
+  listAtomSyn = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
+  
+  listAtomSyn2 = (paste(as.character(N[,3])))
+  
+  for (k in 1:length(listAtomSyn)) {
+    for (j in 1:length(sort.res)) {
+      
+      if (listAtomSyn[k] == sort.res[j]){
+        if (is.element(listAtomSyn2[k], list.bk)==TRUE){
+       
+         matriceBackBonePR1[ProtPR1[i],sort.res[j]] = 1
+        }else{
+         matriceChaineLatPR1[ProtPR1[i],sort.res[j]] = 1
+        }
+      }
+    }
+  }
+}
+
+matriceBackBonePR1
+matriceChaineLatPR1
+```
+
+```{r}
+library(pheatmap)
+?pheatmap
+pheatmap::pheatmap(matriceBackBonePR1)
+pheatmap(matriceBackBonePR1[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
+
+library(pheatmap)
+?pheatmap
+pheatmap::pheatmap(matriceChaineLatPR1)
+pheatmap(matriceChaineLatPR1[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
+
+```
 
 
+A refaire pour le nombre de protéine : matrice avec des 0 et 1 pour PR2
 
 
+```{r}
+ProtPR2 = c("1hii","1hsh","1hsi","1ivp","2hpe","2hpf","2mip","3ebz","3ec0","3ecg","3s45")
+
+list.bk = c("C","O","N","CA")
+
+matriceBackBonePR2 <- matrix(0, nrow=length(ProtPR2), ncol=length(NbResidues))
+
+rownames(matriceBackBonePR2) <- ProtPR2
+colnames(matriceBackBonePR2) <- sort.res
+
+matriceChaineLatPR2 <- matrix(0, nrow=length(ProtPR2), ncol=length(NbResidues))
+
+rownames(matriceChaineLatPR2) <- ProtPR2
+colnames(matriceChaineLatPR2) <- sort.res
 
 
+NbAtomeinPC = c(1:length(listAtomSyn2))
+names(listAtomSyn) = listAtomSyn2
+for (i in 1:length(ind.PR2)) {
+  
+  listAtomSyn = NULL
+  listAtomSyn2 = NULL
+  m
+  
+  filein = ind.PR2[i]
+  N = read.table(paste("fileByProt3",filein,sep="/"))
+  
+  listAtomSyn = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
+  
+  listAtomSyn2 = (paste(as.character(N[,3])))
+  
+  for (k in 1:length(listAtomSyn)) {
+    for (j in 1:length(sort.res)) {
+      
+      if (listAtomSyn[k] == sort.res[j]){
+        if (is.element(listAtomSyn2[k], list.bk)==TRUE){
+       
+         matriceBackBonePR2[ProtPR2[i],sort.res[j]] = 1
+        }else{
+         matriceChaineLatPR2[ProtPR2[i],sort.res[j]] = 1
+        }
+      }
+    }
+  }
+}
+
+matriceBackBonePR2
+matriceChaineLatPR2
+```
 
 
+```{r}
+library(pheatmap)
+?pheatmap
+pheatmap::pheatmap(matriceBackBonePR2)
+pheatmap(matriceBackBonePR2[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 
+library(pheatmap)
+?pheatmap
+pheatmap::pheatmap(matriceChaineLatPR2)
+pheatmap(matriceChaineLatPR2[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 
-
+```
 
 
 
@@ -845,6 +1022,14 @@ matrice3PR
 
 ```{r}
 Region1 = c("dimer","dimer","dimer","dimer","dimer","R1","R1","R1","R1","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","R2","R2","R2","R2","R2","R2","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","R3","R3","R3","R3","wall","wall","wall","wall","R4","R4","R4","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","dimer","dimer","dimer","dimer","dimer","dimer","dimer","dimer","dimer","R1","R1","R1","R1","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","R2","R2","R2","R2","R2","R2","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","R3","R3","R3","R3","wall","wall","wall","wall","R4","R4","R4","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","dimer","dimer","dimer","dimer")
+
+
+
+region.file <- read.table("description_regions.csv", sep=",")
+res = 4
+as.character(region.file[4,2])
+
+ 
 
 ProtPR1 = c("1hhp","1hih","1hiv","1hpv","1sdt", "2hb3","2hb4","2ien","2nph","2z4o","3ekv","3nu3","3phv","4hla","4ll3")
 
