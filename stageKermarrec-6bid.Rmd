@@ -674,6 +674,10 @@ matriceBackBone <- matrix(0, nrow=length(Proteases), ncol=length(NbResidues))
 rownames(matriceBackBone) <- Proteases
 colnames(matriceBackBone) <- sort.res
 
+matriceChaineLat <- matrix(0, nrow=length(Proteases), ncol=length(NbResidues))
+
+rownames(matriceChaineLat) <- Proteases
+colnames(matriceChaineLat) <- sort.res
 
 
 NbAtomeinPC = c(1:length(listAtomSyn2))
@@ -698,6 +702,8 @@ for (i in 1:length(Proteases)) {
         if (is.element(listAtomSyn2[k], list.bk)==TRUE){
        
          matriceBackBone[Proteases[i],sort.res[j]] = 1
+        }else{
+         matriceChaineLat[Proteases[i],sort.res[j]] = 1
         }
       }
     }
@@ -705,8 +711,7 @@ for (i in 1:length(Proteases)) {
 }
 
 matriceBackBone
-
-// ici si on a une correspondance 
+matriceChaineLat
 ```
 
 
@@ -841,7 +846,11 @@ matrice3PR
 ```{r}
 Region1 = c("dimer","dimer","dimer","dimer","dimer","R1","R1","R1","R1","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","R2","R2","R2","R2","R2","R2","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","R3","R3","R3","R3","wall","wall","wall","wall","R4","R4","R4","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","dimer","dimer","dimer","dimer","dimer","dimer","dimer","dimer","dimer","R1","R1","R1","R1","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","R2","R2","R2","R2","R2","R2","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","R3","R3","R3","R3","wall","wall","wall","wall","R4","R4","R4","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","dimer","dimer","dimer","dimer")
 
-matrice3PR2 <- matrix(0, nrow=length(NbResidues), ncol=length(NbResidues))
+ProtPR1 = c("1hhp","1hih","1hiv","1hpv","1sdt", "2hb3","2hb4","2ien","2nph","2z4o","3ekv","3nu3","3phv","4hla","4ll3")
+
+ProtPR2 = c("1hii","1hsh","1hsi","1ivp","2hpe","2hpf","2mip","3ebz","3ec0","3ecg","3s45")
+
+matrice3PR2 <- matrix(0, nrow=length(Proteases), ncol=length(NbResidues))
 
 rownames(matrice3PR2) <- Proteases
 colnames(matrice3PR2) <- sort.res
