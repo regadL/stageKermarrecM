@@ -674,22 +674,7 @@ matriceBackBone <- matrix(0, nrow=length(Proteases), ncol=length(NbResidues))
 rownames(matriceBackBone) <- Proteases
 colnames(matriceBackBone) <- sort.res
 
-listAtomSyn = c()
-for (i in NbProt){
-  filein = listFile[i]
-  N = read.table(paste("fileByProt3",filein,sep="/"))
-  listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
-  listAtomSyn = (c(listAtom,listAtomSyn))
-}
 
-listAtomSyn2 = c()
-
-for (i in NbProt){
-  filein = listFile[i]
-  N = read.table(paste("fileByProt3",filein,sep="/"))
-  listAtom = (paste(as.character(N[,3])))
-  listAtomSyn2 = (c(listAtom,listAtomSyn2))
-}
 
 NbAtomeinPC = c(1:length(listAtomSyn2))
 names(listAtomSyn) = listAtomSyn2
@@ -702,11 +687,9 @@ for (i in 1:length(Proteases)) {
   filein = listFile[i]
   N = read.table(paste("fileByProt3",filein,sep="/"))
   
-  listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
-  listAtomSyn = (c(listAtom,listAtomSyn))
+  listAtomSyn = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
   
-  listAtom = (paste(as.character(N[,3])))
-  listAtomSyn2 = (c(listAtom,listAtomSyn2))
+  listAtomSyn2 = (paste(as.character(N[,3])))
   
   for (k in 1:length(listAtomSyn)) {
     for (j in 1:length(sort.res)) {
@@ -721,9 +704,9 @@ for (i in 1:length(Proteases)) {
   }
 }
 
-
-
 matriceBackBone
+
+// ici si on a une correspondance 
 ```
 
 
@@ -804,6 +787,7 @@ matrice3PR <- matrix(0, nrow=length(Proteases), ncol=length(Region2))
 rownames(matrice3PR) <- Proteases
 colnames(matrice3PR) <- Region2
 
+listAtomSyn = c()
 
 listAtomSyn = c()
 for (j in NbProt) {
