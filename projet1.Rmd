@@ -3,17 +3,11 @@ title: "Etude du packing cristallin chez PR1 et PR2"
 author: "Leslie REGAD et Maxime KERMARREC"
 date: '`r Sys.Date()`'
 output:
-  html_document:
-    code_folding: show #hide
-    self_contained: yes
+  pdf_document:
     fig_caption: yes
-    highlight: pygments #pour les sorties R
-    theme: spacelab
-    toc: yes  #for add table of contents
+    highlight: zenburn
+    toc: yes
     toc_depth: 3
-    toc_float: yes
-    df_print: paged
-    keep_md: yes  #pour garder le .md after run
   slidy_presentation:
     smart: no
     slide_level: 2
@@ -40,11 +34,17 @@ output:
     smaller: yes
     toc: yes
     widescreen: yes
-  pdf_document:
+  html_document:
+    code_folding: show #hide
+    self_contained: yes
     fig_caption: yes
-    highlight: zenburn
-    toc: yes
+    highlight: pygments #pour les sorties R
+    theme: spacelab
+    toc: yes  #for add table of contents
     toc_depth: 3
+    toc_float: yes
+    df_print: paged
+    keep_md: yes  #pour garder le .md after run
   beamer_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -358,7 +358,8 @@ On voit qu'il n'y a pas de lien entre le nombre d'atomes du backbone impliqués 
 
 Visualisation du type d'atomes impliqués dans le packing cristallin
 ```{r}
-pheatmap(matrice3, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 250), col = c("white", "wheat", "yellow", "orange", "red"))
+pheatmap(matrice3, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 250),
+         col = c("white", "wheat", "yellow", "orange", "red"))
 ```
 
 
@@ -411,10 +412,10 @@ for (i in 1:length(Proteases)) {
 Visualisation des résultats
 
 ```{r}
-pheatmap(matriceBackBonePR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"),
-         clustering_distance_rows = "binary")
-pheatmap(matriceChaineLatPR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"),
-         clustering_distance_rows = "binary")
+pheatmap(matriceBackBonePR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, 
+         col=c("white", "red"), clustering_distance_rows = "binary")
+pheatmap(matriceChaineLatPR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, 
+         col=c("white", "red"), clustering_distance_rows = "binary")
 ```
 
 
@@ -446,6 +447,7 @@ for (i in 1:length(NbResidues)){
 
 ```
 
+Voir si ces deux lignes de codes sont nécessaires, car le vecteur type existe déjà mais ne contient pas les mêmes données
 ```{r}
 type = matrice[,ncol(matrice)]
 names(type)
@@ -509,8 +511,6 @@ resB<- colnames(matrice)[grep("_B", colnames(matrice))]
 
 nbrSimul <- 10000
 
-
-
 occ.SupbyPos <- rep(0, length = ncol(matrice))
 names(occ.SupbyPos) <- colnames(matrice)
 for( rep in 1:nbrSimul){
@@ -538,56 +538,45 @@ Ces positions sont impliquées dans le packing dans la majorité des structures.
 
 ```{r}
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
+names(type) = Proteases
 
-names(type) =c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
 
-ProtPR1 = names(which(type=="PR1"))
-
-MatricePR1 <- matrix(0, nrow=length(ProtPR1), ncol=length(NbResidues))
-
-rownames(MatricePR1) <- ProtPR1
-colnames(MatricePR1) <- sort.res
-
-for (i in 1:length(NbResidues)){
-  y = 0
-  for (j in 1:length(ProtPR1)) {
-    if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR1")){
-        y = 1
-        
-    }
-  MatricePR1[2,i] = y
-  }
-}
-dim(MatricePR1)
+ProtPR1 <- names(which(type=="PR1"))
+MatricePR1 <- matrice[ProtPR1,]
 ```
-
 
 
 2. Calcul de la significativité 
 ```{r}
-occ.PR1 <- apply(MatricePR1,2,sum)
 
-resA <- colnames(MatricePR1)[grep("_A", colnames(MatricePR1))]
-resB<- colnames(MatricePR1)[grep("_B", colnames(MatricePR1))]
+nbrSimul <- 10000
 
-nbrSimul <- 1000
+f.computPval <- function(MatricePR1, nbrSimul){
+    occ.PR1 <- apply(MatricePR1,2,sum)
+    resA <- colnames(MatricePR1)[grep("_A", colnames(MatricePR1))]
+    resB <- colnames(MatricePR1)[grep("_B", colnames(MatricePR1))]
+    
+    occ.SupbyPos.PR1 <- rep(0, length = ncol(MatricePR1))
+    names(occ.SupbyPos.PR1) <- colnames(MatricePR1)
+    
+    for( rep in 1:nbrSimul){
+       mat.rand.A <- t(apply(MatricePR1[,resA],1,f.permut))
+       mat.rand.B <- t(apply(MatricePR1[,resB],1,f.permut))
+       matrice.random <- cbind(mat.rand.A, mat.rand.B)
+       colnames(matrice.random) <- c(resA,resB)
+       occ.rand <- apply(matrice.random,2,sum)
+       diff <- occ.rand-occ.PR1
+       occ.SupbyPos.PR1 [names(which(diff > 0))] = occ.SupbyPos.PR1[names(which(diff > 0))] +1
+    }
 
-
-
-occ.SupbyPos.PR1 <- rep(0, length = ncol(MatricePR1))
-names(occ.SupbyPos.PR1) <- colnames(MatricePR1)
-for( rep in 1:nbrSimul){
-    mat.rand.A <- t(apply(MatricePR1[,resA],1,f.permut))
-    mat.rand.B <- t(apply(MatricePR1[,resB],1,f.permut))
-    matrice.random <- cbind(mat.rand.A, mat.rand.B)
-    colnames(matrice.random) <- c(resA,resB)
-    occ.rand <- apply(matrice.random,2,sum)
-    diff <- occ.rand-occ.PR1
-    occ.SupbyPos.PR1 [names(which(diff > 0))] = occ.SupbyPos.PR1[names(which(diff > 0))] +1
+    pval.PR1 <- occ.SupbyPos.PR1/nbrSimul
+    return(pval.PR1)
 }
 
-pval.PR1 <- occ.SupbyPos.PR1/nbrSimul
-length(which(pval.PR1 < 0.05))
+pval.PR1 <- f.computPval(MatricePR1, nbrSimul=20000)
+  
+length(which(pval.PR1 < 0.05/ncol(MatricePR1)))
+res.conserv.PR1 <- names(which(pval.PR1 < 0.05))
 ```
 
 
@@ -791,11 +780,42 @@ pheatmap(matriceChaineLatPR1[-27:-29,], cluster_rows = TRUE, cluster_cols = FALS
 
 # Etude du packing cristallin chez PR2
 
-**To do**
 
 ## Identification des résidus impliqués dans le packing cristallin dans au moins une structure de PR2
-1. Calcul de la matrice
-2. Représentation sur une structure 3D des résidus impliqués dans le packing cristallin spécifiques de PR2
+1. Calcul de la matrice donnant si le résidu est impliqué dans le packing chez une des structures de PR2
+
+```{r}
+type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
+names(type) = Proteases
+
+ProtPR2 = names(which(type=="PR2"))
+
+MatricePR2 <- matrice[ProtPR2,]
+dim(MatricePR2)
+```
+
+2. Calcul de la significativité 
+
+```{r}
+pval.PR2 <- f.computPval(MatricePR2, nbrSimul=20000)
+res.conserv.PR2 <- names(which(pval.PR2 < 0.05))
+length(res.conserv.PR2)
+```
+
+
+3. différence entre PR1 et PR2
+
+* résidus conservés chez PR1 et pas chez PR2
+```{r}
+setdiff(res.conserv.PR1, res.conserv.PR2)
+```
+
+* résidus conservés chez PR2 et pas chez PR1
+```{r}
+setdiff(res.conserv.PR2, res.conserv.PR1)
+```
+
+3. Représentation sur une structure 3D des résidus impliqués dans le packing cristallin spécifiques de PR2
 
 * Pour la visualisation utiliser la structure de PR2 complexée au DRV : PDB code : 3EBZ.
 * résidus impliqués dans le packing cristallin spécifiques de PR2 = Résidus ceux qui sont très souvent impliqués dans le packing chez PR2 et très peu voir jamais chez PR1  

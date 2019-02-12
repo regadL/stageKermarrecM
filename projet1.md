@@ -1,7 +1,7 @@
 ---
 title: "Etude du packing cristallin chez PR1 et PR2"
 author: "Leslie REGAD et Maxime KERMARREC"
-date: '2019-02-11'
+date: '2019-02-12'
 output:
   html_document:
     code_folding: show #hide
@@ -114,8 +114,10 @@ PDB code | type | remarque
 
 
 ```r
+Proteases = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
+
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
-names(type) =c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
+names(type) = Proteases
 ```
 
 
@@ -183,14 +185,7 @@ Dans les 26 structures, il y a 159 atomes qui sont impliqués dans le packing cr
 
 
 ```r
-Proteases = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
-
-type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
-
-names(type) =c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
-
 matrice <- matrix(0, nrow=length(Proteases), ncol=length(listAtomSyn))
-
 rownames(matrice) <- Proteases
 colnames(matrice) <- listAtomSyn
 
@@ -236,14 +231,20 @@ Utilisation la commande `pheatmap` du package `pheatmap`
 
 
 ```r
-pheatmap(matrice[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
+pheatmap(matrice[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"),
+         clustering_distance_rows = "binary")
 ```
 
 <img src="figures/07_tests_multiplescolorMat-1.png" style="display: block; margin: auto;" />
 
+Les protéines sont classées suivant la distance 'binary' (aka asymmetric binary): The vectors are regarded as binary bits, so non-zero elements are ‘on’ and zero elements are ‘off’. The distance is the proportion of bits in which only one is on amongst those in which at least one is on.
 
 **Analyse** :   
+On voit tout d'abord : 
 
+* les 3 formes non complexées de PR1 sont isolées ce qui s'explique par le fait qu'elles n'ont pas de chaine B
+* on n'a pas une séparation PR1-PR2
+* On remarque des positions qui sont impliquées dans le packing chez la majorité des structures ex 4, 6A, 7A
 
 
 
@@ -343,14 +344,58 @@ for (j in 1:length(sort.res)) {
 }
 ```
 
+En moyenne on a : 
+
+```r
+apply(matrice3, 1, mean)
+```
+
+```
+ Backbone ChaineLat 
+ 13.44025  24.54088 
+```
+
+```r
+t.test(matrice3[1,],matrice3[2,], var.equal=TRUE, alternative="less")
+```
+
+```
+
+	Two Sample t-test
+
+data:  matrice3[1, ] and matrice3[2, ]
+t = -3.9373, df = 316, p-value = 0.00005071
+alternative hypothesis: true difference in means is less than 0
+95 percent confidence interval:
+      -Inf -6.449546
+sample estimates:
+mean of x mean of y 
+ 13.44025  24.54088 
+```
+On voit qu'en moyenne les résidus ont plus d'atomes des chaînes latérales impliqués dans le packing cristallin que des atomes du backbone (p-value = 5.071e-05).
+
+
+
+```r
+plot(matrice3[1,],matrice3[2,], xlab="nbr d'atomes du backbone impliqués dans le packing par résidu",
+    ylab="nbr d'atomes des chaines latérales impliqués dans le packing par résidu", pch=19)
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-8-1.png" style="display: block; margin: auto;" />
+
+On voit qu'il n'y a pas de lien entre le nombre d'atomes du backbone impliqués dans le packing par résidus et le 
+ nombre d'atomes des chaînes latérales impliqués dans le packing par résidus.
+ Ce n'est pas parce qu'un résidu à beaucoup d'atomes de sa chaîne latérale impliqués dans le packing, qu'il aura beaucoup d'atomes de son backbone impliqués dans le packing.
+ 
 
 Visualisation du type d'atomes impliqués dans le packing cristallin
 
 ```r
-pheatmap(matrice3, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 250), col = c("white", "wheat", "yellow", "orange", "red"))
+pheatmap(matrice3, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 250),
+         col = c("white", "wheat", "yellow", "orange", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-9-1.png" style="display: block; margin: auto;" />
 
 
 
@@ -358,9 +403,6 @@ A refaire pour le nombre de protéine : matrice avec des 0 et 1
 
 
 ```r
-list.bk = c("C","O","N","CA")
-Proteases = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
-
 matriceBackBonePR <- matrix(0, nrow=length(Proteases), ncol=length(NbResidues))
 
 rownames(matriceBackBonePR) <- Proteases
@@ -407,16 +449,18 @@ Visualisation des résultats
 
 
 ```r
-pheatmap(matriceBackBonePR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
+pheatmap(matriceBackBonePR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, 
+         col=c("white", "red"), clustering_distance_rows = "binary")
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-11-1.png" style="display: block; margin: auto;" />
 
 ```r
-pheatmap(matriceChaineLatPR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
+pheatmap(matriceChaineLatPR[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, 
+         col=c("white", "red"), clustering_distance_rows = "binary")
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-9-2.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-11-2.png" style="display: block; margin: auto;" />
 
 
 
@@ -446,6 +490,7 @@ for (i in 1:length(NbResidues)){
 }
 ```
 
+Voir si ces deux lignes de codes sont nécessaires, car le vecteur type existe déjà mais ne contient pas les mêmes données
 
 ```r
 type = matrice[,ncol(matrice)]
@@ -479,19 +524,22 @@ D'autres résidus sont retrouvés dans la majorité des structures (>80%) : 4_A,
 2. Représenter ces valeurs graphiquement
 
 ```r
-hist(NbStructinPC,xlab = matriceStruct[1,])
+hist(NbStructinPC,xlab="Nbr de structures ayant un résidu donné impliqué dans le packing")
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-16-1.png" style="display: block; margin: auto;" />
 
 On va aussi faire un barplot pour voir le nombre pour chaque résidus
 
 ```r
-barplot(NbStructinPC, las = 2, cex.names  = 0.6)
+barplot(NbStructinPC, las = 2, cex.names  = 0.6, xlab="residus", ylab="Nbr de structures ayant un résidu donné impliqué dans le packing")
+abline(h=c(19,17))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-15-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-17-1.png" style="display: block; margin: auto;" />
  On voit des différences dans les chaînes A et B
+ 
+ 
 
 3. Calculer la moyenne et écart type de ce nombre
 
@@ -513,6 +561,47 @@ sd(matriceStruct[1,])
 ```
 
 
+On définit un résidus impliqué dans le packing dans la majorité des structures comme étant : 
+
+* les résidus de la chaine A vu dans au moins 70% des structures = 19 structures
+* les résidus de la chaine B vu dans au moins 70% des structures = 17 structures
+
+
+
+4. Calcul une p-value pour déterminer si les positions sont conservées
+
+
+```r
+f.permut = function(vect){
+  return(sample(vect))
+}
+
+occ <- apply(matrice,2,sum)
+
+resA <- colnames(matrice)[grep("_A", colnames(matrice))]
+resB<- colnames(matrice)[grep("_B", colnames(matrice))]
+
+nbrSimul <- 10000
+
+occ.SupbyPos <- rep(0, length = ncol(matrice))
+names(occ.SupbyPos) <- colnames(matrice)
+for( rep in 1:nbrSimul){
+    mat.rand.A <- t(apply(matrice[,resA],1,f.permut))
+    mat.rand.B <- t(apply(matrice[,resB],1,f.permut))
+    matrice.random <- cbind(mat.rand.A, mat.rand.B)
+    colnames(matrice.random) <- c(resA,resB)
+    occ.rand <- apply(matrice.random,2,sum)
+    diff <- occ.rand-occ
+    occ.SupbyPos [names(which(diff > 0))] = occ.SupbyPos[names(which(diff > 0))] +1
+}
+
+pval <- occ.SupbyPos/nbrSimul
+```
+
+Les positions qui sont sur-représentés sont (pvalue < 0.05) 2_A, 4_A, 6_A, 7_A, 18_A, 35_A, 37_A, 40_A, 41_A, 42_A, 43_A, 44_A, 45_A, 46_A, 52_A, 53_A, 55_A, 61_A, 63_A, 70_A, 72_A, 79_A, 91_A, 92_A, 2_B, 6_B, 7_B, 12_B, 14_B, 17_B, 18_B, 19_B, 21_B, 37_B, 39_B, 40_B, 41_B, 42_B, 43_B, 44_B, 46_B, 53_B, 55_B, 61_B, 63_B, 68_B, 70_B, 72_B, 79_B, 81_B, 92_B.
+Ces positions sont impliquées dans le packing dans la majorité des structures.
+
+
 # Détermination des résidus impliqués dans le packing cristallin chez PR1
 
 ## Identification des résidus impliqués dans le packing cristallin chez au moins une structure de PR1
@@ -521,36 +610,58 @@ sd(matriceStruct[1,])
 
 ```r
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
-
-names(type) =c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2hb3","2hb4","2hpe","2hpf","2ien","2mip","2nph","2z4o","3ebz","3ec0","3ecg","3ekv","3nu3","3phv","3s45","4hla","4ll3")
-
-ProtPR1 = c("1hhp","1hih","1hiv","1hpv","1sdt", "2hb3","2hb4","2ien","2nph","2z4o","3ekv","3nu3","3phv","4hla","4ll3")
+names(type) = Proteases
 
 
-MatricePR1 <- matrix(0, nrow=length(ProtPR1), ncol=length(NbResidues))
+ProtPR1 <- names(which(type=="PR1"))
+MatricePR1 <- matrice[ProtPR1,]
+```
 
-rownames(MatricePR1) <- ProtPR1
-colnames(MatricePR1) <- sort.res
 
-for (i in 1:length(NbResidues)){
-  y = 0
-  for (j in 1:length(ProtPR1)) {
-    if ((matrice[j,i] == 1) && (type[rownames(matrice)[j]] == "PR1")){
-        y = 1
-        
+2. Calcul de la significativité 
+
+```r
+nbrSimul <- 10000
+
+f.computPval <- function(MatricePR1, nbrSimul){
+    occ.PR1 <- apply(MatricePR1,2,sum)
+    resA <- colnames(MatricePR1)[grep("_A", colnames(MatricePR1))]
+    resB <- colnames(MatricePR1)[grep("_B", colnames(MatricePR1))]
+    
+    occ.SupbyPos.PR1 <- rep(0, length = ncol(MatricePR1))
+    names(occ.SupbyPos.PR1) <- colnames(MatricePR1)
+    
+    for( rep in 1:nbrSimul){
+       mat.rand.A <- t(apply(MatricePR1[,resA],1,f.permut))
+       mat.rand.B <- t(apply(MatricePR1[,resB],1,f.permut))
+       matrice.random <- cbind(mat.rand.A, mat.rand.B)
+       colnames(matrice.random) <- c(resA,resB)
+       occ.rand <- apply(matrice.random,2,sum)
+       diff <- occ.rand-occ.PR1
+       occ.SupbyPos.PR1 [names(which(diff > 0))] = occ.SupbyPos.PR1[names(which(diff > 0))] +1
     }
-  MatricePR1[2,i] = y
-  }
+
+    pval.PR1 <- occ.SupbyPos.PR1/nbrSimul
+    return(pval.PR1)
 }
-dim(MatricePR1)
+
+pval.PR1 <- f.computPval(MatricePR1, nbrSimul=20000)
+  
+length(which(pval.PR1 < 0.05/ncol(MatricePR1)))
 ```
 
 ```
-[1]  15 159
+[1] 24
+```
+
+```r
+res.conserv.PR1 <- names(which(pval.PR1 < 0.05))
 ```
 
 
-2. Représentation sur une structure 3D des résidus impliqués dans le packing cristallin spécifiques de PR1
+
+
+3. Représentation sur une structure 3D des résidus impliqués dans le packing cristallin spécifiques de PR1
 
 * Pour la visualisation utiliser la structure de PR1 complexée au DRV : PDB code : 2ien.
 * résidus impliqués dans le packing cristallin spécifiques de PR1 = Résidus ceux qui sont très souvent impliqués dans le packing chez PR1 et très peu voir jamais chez PR2 
@@ -579,7 +690,7 @@ count.allPR <- apply(matrice, 2, sum)
 hist(count.allPR)
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-19-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-23-1.png" style="display: block; margin: auto;" />
 
 ```r
 dim(matrice)
@@ -587,19 +698,6 @@ dim(matrice)
 
 ```
 [1]  26 159
-```
-
-```r
-sort(round(count.allPR/nrow(matrice), 2))
-```
-
-```
-15_A 30_A 66_A 78_A 11_B 13_B 56_B 62_B 73_B 76_B 78_B 88_B 10_A 23_A 59_A 74_A 29_B 30_B 36_B 50_B 67_B 69_B 83_B 87_B 95_B  9_A 11_A 24_A 25_A 26_A 27_A 47_A 56_A 90_A 95_A 97_A 49_B 58_B 59_B 74_B  5_A 80_A 82_A  3_B  8_B 10_B 47_B 51_B  1_A  3_A 21_A 29_A 50_A 73_A 87_A 88_A 89_A 93_A 34_B 82_B 
-0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.04 0.08 0.08 0.08 0.08 0.08 0.08 0.08 0.08 0.08 0.08 0.08 0.08 0.08 0.12 0.12 0.12 0.12 0.12 0.12 0.12 0.12 0.12 0.12 0.12 0.12 0.12 0.12 0.12 0.15 0.15 0.15 0.15 0.15 0.15 0.15 0.15 0.19 0.19 0.19 0.19 0.19 0.19 0.19 0.19 0.19 0.19 0.19 0.19 
-98_B 99_B  8_A 60_A 65_A 69_A  1_B 35_B 54_B 60_B 91_B 36_A 38_A 67_A 71_A 96_A 65_B 94_B 49_A 51_A 54_A 68_A 98_A 48_B 80_B 96_B 12_A 17_A 20_A 34_A 81_A 14_A 99_A 38_B 52_B 16_A 19_A 39_A 48_A 58_A 94_A  4_B 16_B 45_B 57_B 71_B 57_A 20_B 52_A 63_A 91_A 21_B 39_B 92_B 35_A 41_A 70_A 41_B 68_B 18_A 
-0.19 0.19 0.23 0.23 0.23 0.23 0.23 0.23 0.23 0.23 0.23 0.27 0.27 0.27 0.27 0.27 0.27 0.27 0.31 0.31 0.31 0.31 0.31 0.31 0.31 0.31 0.35 0.35 0.35 0.35 0.35 0.38 0.38 0.38 0.38 0.42 0.42 0.42 0.42 0.42 0.42 0.42 0.42 0.42 0.42 0.42 0.46 0.46 0.50 0.50 0.50 0.50 0.50 0.50 0.54 0.54 0.54 0.54 0.54 0.58 
-40_A 42_A 45_A 55_B 70_B 61_A 79_A  2_B 18_B 37_B 43_B 61_B 63_B 72_B 81_B 43_A 92_A 14_B 42_B 46_B 37_A  6_B  7_B 53_B  2_A 44_A 12_B 79_B 55_A 40_B 44_B 72_A 46_A 17_B 19_B  7_A 53_A  4_A  6_A 
-0.58 0.58 0.58 0.58 0.58 0.62 0.62 0.62 0.62 0.62 0.62 0.62 0.62 0.62 0.62 0.65 0.65 0.65 0.65 0.65 0.69 0.69 0.69 0.69 0.73 0.73 0.73 0.73 0.77 0.77 0.77 0.81 0.85 0.85 0.85 0.88 0.88 0.92 1.00 
 ```
 
 ![legende](figures/RVIH.png){width=65%}
@@ -630,13 +728,13 @@ matriceStruct = rbind(NbStructinPC,NbStructinPC.PR1)
 hist(NbStructinPC.PR1, xlab = matriceStruct[1,])
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-21-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-25-1.png" style="display: block; margin: auto;" />
 
 ```r
 barplot(NbStructinPC.PR1, las = 2, cex.names  = 0.6)
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-22-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-26-1.png" style="display: block; margin: auto;" />
 
 
 3. Calculer la moyenne et écart type de ce nombre
@@ -733,7 +831,7 @@ for (j in 1:length(sort.res)) {
 pheatmap(matrice3PR1, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 150), col = c("white", "wheat", "yellow", "orange", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-25-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-29-1.png" style="display: block; margin: auto;" />
 
 
 
@@ -794,13 +892,13 @@ for (i in 1:length(ind.PR1)) {
 pheatmap(matriceBackBonePR1[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-27-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-31-1.png" style="display: block; margin: auto;" />
 
 ```r
 pheatmap(matriceChaineLatPR1[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-27-2.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-31-2.png" style="display: block; margin: auto;" />
 
 
 # Etude du packing cristallin chez PR2
@@ -808,8 +906,60 @@ pheatmap(matriceChaineLatPR1[-27:-29,], cluster_rows = TRUE, cluster_cols = FALS
 **To do**
 
 ## Identification des résidus impliqués dans le packing cristallin dans au moins une structure de PR2
-1. Calcul de la matrice
-2. Représentation sur une structure 3D des résidus impliqués dans le packing cristallin spécifiques de PR2
+1. Calcul de la matrice donnant si le résidu est impliqué dans le packing chez une des structures de PR2
+
+
+```r
+type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
+names(type) = Proteases
+
+ProtPR2 = names(which(type=="PR2"))
+
+MatricePR2 <- matrice[ProtPR2,]
+dim(MatricePR2)
+```
+
+```
+[1]  11 159
+```
+
+2. Calcul de la significativité 
+
+
+```r
+pval.PR2 <- f.computPval(MatricePR2, nbrSimul=20000)
+res.conserv.PR2 <- names(which(pval.PR2 < 0.05))
+length(res.conserv.PR2)
+```
+
+```
+[1] 40
+```
+
+
+3. différence entre PR1 et PR2
+
+* résidus conservés chez PR1 et pas chez PR2
+
+```r
+setdiff(res.conserv.PR1, res.conserv.PR2)
+```
+
+```
+ [1] "18_A" "35_A" "37_A" "52_A" "61_A" "70_A" "91_A" "92_A" "94_A" "4_B"  "6_B"  "63_B" "70_B" "71_B" "72_B" "80_B" "92_B"
+```
+
+* résidus conservés chez PR2 et pas chez PR1
+
+```r
+setdiff(res.conserv.PR2, res.conserv.PR1)
+```
+
+```
+ [1] "40_A" "41_A" "42_A" "45_A" "58_A" "63_A" "99_A" "7_B"  "21_B" "37_B" "41_B" "45_B" "46_B" "53_B" "55_B" "68_B"
+```
+
+3. Représentation sur une structure 3D des résidus impliqués dans le packing cristallin spécifiques de PR2
 
 * Pour la visualisation utiliser la structure de PR2 complexée au DRV : PDB code : 3EBZ.
 * résidus impliqués dans le packing cristallin spécifiques de PR2 = Résidus ceux qui sont très souvent impliqués dans le packing chez PR2 et très peu voir jamais chez PR1  
@@ -838,13 +988,13 @@ matriceStruct = rbind(matriceStruct,NbStructinPC.PR2)
 hist(NbStructinPC.PR2,xlab = "")
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-29-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-37-1.png" style="display: block; margin: auto;" />
 
 ```r
 barplot(NbStructinPC.PR2, las = 2, cex.names  = 0.6)
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-30-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-38-1.png" style="display: block; margin: auto;" />
 
 
 3. Calculer la moyenne et écart type de ce nombre
@@ -950,7 +1100,7 @@ matricetotale = matrice3PR1 + matrice3PR2
 pheatmap(matrice3PR2, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 70, 100), col = c("white", "wheat", "yellow", "orange", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-33-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-41-1.png" style="display: block; margin: auto;" />
 
 
 A refaire pour le nombre de protéine : matrice avec des 0 et 1 pour PR2
@@ -1009,13 +1159,13 @@ for (i in 1:length(ind.PR2)) {
 pheatmap(matriceBackBonePR2[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-35-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-43-1.png" style="display: block; margin: auto;" />
 
 ```r
 pheatmap(matriceChaineLatPR2[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-35-2.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-43-2.png" style="display: block; margin: auto;" />
 
 
 
@@ -1034,7 +1184,7 @@ text(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",],
      colnames(matriceStruct), pos=3, offset=0.3, cex=0.5 )
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-36-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-44-1.png" style="display: block; margin: auto;" />
 
 
 On calcule ensuite la corrélation entre ces deux variables
@@ -1122,37 +1272,6 @@ for (j in 1:length(RegionPacking)) {
     }
   }
 }
-matrice3PR
-```
-
-```
-     dimer1A R1A fulcrumA catalyticA R2A elbowA flapsA cantileverA R3A wallA R4A alpha-helixA dimer2A dimer1B R1B fulcrumB catalyticB R2B elbowB flapsB cantileverB R3B wallB R4B alpha-helixB dimer2B
-1hhp       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-1hih       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-1hii       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-1hiv       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-1hpv       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-1hsh       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-1hsi       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-1ivp       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-1sdt       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-2hb3       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-2hb4       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-2hpe       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-2hpf       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-2ien       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-2mip       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-2nph       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-2z4o       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-3ebz       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-3ec0       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-3ecg       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-3ekv       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-3nu3       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-3phv       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-3s45       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-4hla       0   0        0          0   0      0      0           0   0     0   0            0       0       0   0        0          0   0      0      0           0   0     0   0            0       0
-4ll3       1   1        1          1   1      1      1           1   1     0   0            1       1       1   1        1          1   1      1      1           0   1     1   1            1       1
 ```
 
 ###Pour PR1
