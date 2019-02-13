@@ -1,50 +1,19 @@
 ---
 title: "Etude du packing cristallin chez PR1 et PR2"
 author: "Leslie REGAD et Maxime KERMARREC"
-date: '2019-02-12'
+date: '2019-02-13'
 output:
   html_document:
-    code_folding: show #hide
-    self_contained: yes
+    code_folding: show
+    df_print: paged
     fig_caption: yes
-    highlight: pygments #pour les sorties R
+    highlight: pygments
+    keep_md: yes
+    self_contained: yes
     theme: spacelab
-    toc: yes  #for add table of contents
+    toc: yes
     toc_depth: 3
     toc_float: yes
-    df_print: paged
-    keep_md: yes  #pour garder le .md after run
-  slidy_presentation:
-    smart: no
-    slide_level: 2
-    self_contained: yes
-    fig_caption: yes
-    fig_height: 6
-    fig_width: 7
-    highlight: tango
-    incremental: no
-    keep_md: yes
-    smaller: yes
-    theme: cerulean
-    toc: yes
-    widescreen: yes
-  ioslides_presentation:
-    slide_level: 2
-    self_contained: no
-    colortheme: dolphin
-    fig_caption: yes
-    fig_height: 6
-    fig_width: 7
-    fonttheme: structurebold
-    highlight: tango
-    smaller: yes
-    toc: yes
-    widescreen: yes
-  pdf_document:
-    fig_caption: yes
-    highlight: zenburn
-    toc: yes
-    toc_depth: 3
   beamer_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -57,6 +26,37 @@ output:
     slide_level: 2
     theme: Montpellier
     toc: yes
+  ioslides_presentation:
+    colortheme: dolphin
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    self_contained: no
+    slide_level: 2
+    smaller: yes
+    toc: yes
+    widescreen: yes
+  pdf_document:
+    fig_caption: yes
+    highlight: zenburn
+    toc: yes
+    toc_depth: 3
+  slidy_presentation:
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    highlight: tango
+    incremental: no
+    keep_md: yes
+    self_contained: yes
+    slide_level: 2
+    smaller: yes
+    smart: no
+    theme: cerulean
+    toc: yes
+    widescreen: yes
 font-import: http://fonts.googleapis.com/css?family=Risque
 font-family: Garamond
 transition: linear
@@ -118,6 +118,9 @@ Proteases = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2h
 
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
 names(type) = Proteases
+
+pos.muT <-c(3,4,7,10,13,14,16,19,20,22,31:37,39:43,55:58,60:62,66:69,71:73,75:77,82,85,89,92:93,95,96,99)
+res.muT <-c(paste(pos.muT,"_A",sep=""), paste(pos.muT,"_B",sep=""))
 ```
 
 
@@ -658,6 +661,40 @@ length(which(pval.PR1 < 0.05/ncol(MatricePR1)))
 res.conserv.PR1 <- names(which(pval.PR1 < 0.05))
 ```
 
+Chez PR1, il y a 41 résidus qui sont impliqués dans le packing cristallin dans la majorité des PR1.
+
+
+On regarde dans combien de structures de PR1 ses résidus sont impliqués dans le packing
+
+
+```r
+occ.PR1 <- apply(MatricePR1,2,sum)
+occ.PR1[res.conserv.PR1]
+```
+
+```
+ 2_A  4_A  6_A  7_A 18_A 35_A 37_A 43_A 44_A 46_A 52_A 53_A 55_A 61_A 70_A 72_A 79_A 91_A 92_A 94_A  2_B  4_B  6_B 12_B 14_B 17_B 18_B 19_B 40_B 42_B 43_B 44_B 61_B 63_B 70_B 71_B 72_B 79_B 80_B 81_B 92_B 
+  10   15   15   12   12   12   14   11   11   12   11   14   10   12    9   15    9   11   15    9    8   10   12   11   10   12    8   12   12    8    9   11    9   12   11   11   12   11    8    9   12 
+```
+
+
+On regarde dans combien de structures de PR1 ses résidus sont impliqués dans le packing
+Il faut différentier les chaînes A et B, car trois structures de PR1 n'ont pas de chaîne B.
+
+
+```r
+resA.1 <- intersect(res.conserv.PR1, colnames(MatricePR1)[grep("_A", colnames(MatricePR1))])
+resB.1 <- intersect(res.conserv.PR1, colnames(MatricePR1)[grep("_B", colnames(MatricePR1))])
+
+pourc.PR1 <- round(c(occ.PR1[resA.1] / nrow(MatricePR1),
+                     occ.PR1[resB.1] / (nrow(MatricePR1)-3))*100,2)
+
+barplot(pourc.PR1, las=2, ylab="% de structures avec le res dans packing")
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-23-1.png" style="display: block; margin: auto;" />
+
+Ces résidus conservés dans le packing de PR1 sont impliqués dans le packing dans 11.15 (+/- 1.98) structures.
 
 
 
@@ -690,7 +727,7 @@ count.allPR <- apply(matrice, 2, sum)
 hist(count.allPR)
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-23-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-25-1.png" style="display: block; margin: auto;" />
 
 ```r
 dim(matrice)
@@ -728,13 +765,13 @@ matriceStruct = rbind(NbStructinPC,NbStructinPC.PR1)
 hist(NbStructinPC.PR1, xlab = matriceStruct[1,])
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-25-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-27-1.png" style="display: block; margin: auto;" />
 
 ```r
 barplot(NbStructinPC.PR1, las = 2, cex.names  = 0.6)
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-26-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-28-1.png" style="display: block; margin: auto;" />
 
 
 3. Calculer la moyenne et écart type de ce nombre
@@ -831,7 +868,7 @@ for (j in 1:length(sort.res)) {
 pheatmap(matrice3PR1, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 100, 150), col = c("white", "wheat", "yellow", "orange", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-29-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-31-1.png" style="display: block; margin: auto;" />
 
 
 
@@ -892,18 +929,17 @@ for (i in 1:length(ind.PR1)) {
 pheatmap(matriceBackBonePR1[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-31-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-33-1.png" style="display: block; margin: auto;" />
 
 ```r
 pheatmap(matriceChaineLatPR1[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-31-2.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-33-2.png" style="display: block; margin: auto;" />
 
 
-# Etude du packing cristallin chez PR2
+# Détermination des résidus impliqués dans le packing cristallin chez PR1
 
-**To do**
 
 ## Identification des résidus impliqués dans le packing cristallin dans au moins une structure de PR2
 1. Calcul de la matrice donnant si le résidu est impliqué dans le packing chez une des structures de PR2
@@ -923,41 +959,47 @@ dim(MatricePR2)
 [1]  11 159
 ```
 
-2. Calcul de la significativité 
+2. Calcul de la significativité pour déterminer les résidus conservés
 
 
 ```r
 pval.PR2 <- f.computPval(MatricePR2, nbrSimul=20000)
 res.conserv.PR2 <- names(which(pval.PR2 < 0.05))
-length(res.conserv.PR2)
 ```
 
-```
-[1] 40
-```
+Chez PR2, il y a 40 résidus qui sont impliqués dans le packing cristallin dans la majorité des PR2.
 
 
-3. différence entre PR1 et PR2
+On regarde dans combien de structures de PR1 ses résidus sont impliqués dans le packing
 
-* résidus conservés chez PR1 et pas chez PR2
 
 ```r
-setdiff(res.conserv.PR1, res.conserv.PR2)
+occ.PR2 <- apply(MatricePR2,2,sum)
+occ.PR2[res.conserv.PR2]
 ```
 
 ```
- [1] "18_A" "35_A" "37_A" "52_A" "61_A" "70_A" "91_A" "92_A" "94_A" "4_B"  "6_B"  "63_B" "70_B" "71_B" "72_B" "80_B" "92_B"
+ 2_A  4_A  6_A  7_A 40_A 41_A 42_A 43_A 44_A 45_A 46_A 53_A 55_A 58_A 63_A 72_A 79_A 99_A  2_B  7_B 12_B 14_B 17_B 18_B 19_B 21_B 37_B 40_B 41_B 42_B 43_B 44_B 45_B 46_B 53_B 55_B 61_B 68_B 79_B 81_B 
+   9    9   11   11    9   10    9    6    8    8   10    9   10    6    6    6    7    7    8   11    8    7   10    8   10    8    9    8    7    9    7    9    8   10   11    9    7    8    8    7 
 ```
 
-* résidus conservés chez PR2 et pas chez PR1
+On calcule le pourcentage de structures de PR2 contenant ces résidus dans le packing
+
 
 ```r
-setdiff(res.conserv.PR2, res.conserv.PR1)
+pourc.PR2 <- round(occ.PR2[res.conserv.PR2] / nrow(MatricePR2)*100,2)
+barplot(pourc.PR2, las=2, ylab="% de structures avec le res dans packing")
 ```
 
-```
- [1] "40_A" "41_A" "42_A" "45_A" "58_A" "63_A" "99_A" "7_B"  "21_B" "37_B" "41_B" "45_B" "46_B" "53_B" "55_B" "68_B"
-```
+<img src="figures/07_tests_multiplesunnamed-chunk-37-1.png" style="display: block; margin: auto;" />
+
+Ces résidus conservés dans le packing de PR2 sont impliqués dans le packing dans 8.45 (+/- 1.47) structures.
+
+
+
+
+
+
 
 3. Représentation sur une structure 3D des résidus impliqués dans le packing cristallin spécifiques de PR2
 
@@ -988,13 +1030,13 @@ matriceStruct = rbind(matriceStruct,NbStructinPC.PR2)
 hist(NbStructinPC.PR2,xlab = "")
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-37-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-39-1.png" style="display: block; margin: auto;" />
 
 ```r
 barplot(NbStructinPC.PR2, las = 2, cex.names  = 0.6)
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-38-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-40-1.png" style="display: block; margin: auto;" />
 
 
 3. Calculer la moyenne et écart type de ce nombre
@@ -1100,7 +1142,7 @@ matricetotale = matrice3PR1 + matrice3PR2
 pheatmap(matrice3PR2, cluster_cols = FALSE, cluster_rows = FALSE, breaks = c(-1, 10, 20, 50, 70, 100), col = c("white", "wheat", "yellow", "orange", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-41-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-43-1.png" style="display: block; margin: auto;" />
 
 
 A refaire pour le nombre de protéine : matrice avec des 0 et 1 pour PR2
@@ -1159,17 +1201,130 @@ for (i in 1:length(ind.PR2)) {
 pheatmap(matriceBackBonePR2[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-43-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-45-1.png" style="display: block; margin: auto;" />
 
 ```r
 pheatmap(matriceChaineLatPR2[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"))
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-43-2.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-45-2.png" style="display: block; margin: auto;" />
 
 
 
 # Comparaison des résidus impliqués dans le packing cristallin chez PR1 et PR2
+
+
+## différence des résidus impliqués dans le packing chez PR1 et PR2
+
+### résidus conservés chez PR1 et pas chez PR2
+
+```r
+consvPR1.NotinPR2 <- setdiff(res.conserv.PR1, res.conserv.PR2)
+```
+
+Il y a 17 résidus qui sont impliqués dans le packing chez la plupart des PR1 mais pas chez PR2 : 18_A, 35_A, 37_A, 52_A, 61_A, 70_A, 91_A, 92_A, 94_A, 4_B, 6_B, 63_B, 70_B, 71_B, 72_B, 80_B, 92_B.
+
+Pour chaque résidu, on regarde : 
+
+* Nombre de structures de PR1 et PR2 avec ces résidus dans le packing
+* la localisation de ces résidus dans la structure
+* le type d'atomes 
+* si c'est un résidu muté
+
+
+
+```r
+regionfile <- read.table("description_regions.csv", sep=",")
+regionV = c(as.character(regionfile[,2]), as.character(regionfile[,2])) 
+names(regionV) <- c(paste(as.character(regionfile[,1]),"A", sep="_"), 
+                    paste(as.character(regionfile[,1]),"B", sep="_"))
+```
+
+
+Détermine si les résidus sont mutés
+
+```r
+mut.diff11 <- rep("no", length = length(consvPR1.NotinPR2))
+names(mut.diff11) <- consvPR1.NotinPR2
+mut.diff11[intersect(res.muT, consvPR1.NotinPR2)] = "yes"
+```
+
+
+
+```r
+tmp.occ <- data.frame(consvPR1.NotinPR2, 
+                      occ.PR1[consvPR1.NotinPR2], 
+                      occ.PR2[consvPR1.NotinPR2],
+                      regionV[consvPR1.NotinPR2], 
+                      t(matrice3PR1[,consvPR1.NotinPR2]),
+                      t(matrice3PR2[,consvPR1.NotinPR2]),
+                      mut.diff11
+                      )
+colnames(tmp.occ) <- c("residues", "PR1.Occ", "PR2.Occ", "loc", 
+                       "BB.PR1", "SC.PR1",
+                       "BB.PR2", "SC.PR2", "mutation")
+tmp.occ
+```
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["residues"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["PR1.Occ"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["PR2.Occ"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["loc"],"name":[4],"type":["fctr"],"align":["left"]},{"label":["BB.PR1"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["SC.PR1"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["BB.PR2"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["SC.PR2"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["mutation"],"name":[9],"type":["fctr"],"align":["left"]}],"data":[{"1":"18_A","2":"12","3":"3","4":"fulcrum","5":"1","6":"48","7":"2","8":"7","9":"no","_rn_":"18_A"},{"1":"35_A","2":"12","3":"2","4":"R2","5":"20","6":"37","7":"2","8":"0","9":"yes","_rn_":"35_A"},{"1":"37_A","2":"14","3":"4","4":"elbow","5":"15","6":"38","7":"0","8":"10","9":"yes","_rn_":"37_A"},{"1":"52_A","2":"11","3":"2","4":"flaps","5":"24","6":"0","7":"2","8":"0","9":"no","_rn_":"52_A"},{"1":"61_A","2":"12","3":"4","4":"cantilever","5":"4","6":"42","7":"3","8":"14","9":"yes","_rn_":"61_A"},{"1":"70_A","2":"9","3":"5","4":"cantilever","5":"16","6":"14","7":"2","8":"18","9":"no","_rn_":"70_A"},{"1":"91_A","2":"11","3":"2","4":"alpha-helix","5":"22","6":"20","7":"2","8":"0","9":"no","_rn_":"91_A"},{"1":"92_A","2":"15","3":"2","4":"alpha-helix","5":"36","6":"56","7":"3","8":"0","9":"yes","_rn_":"92_A"},{"1":"94_A","2":"9","3":"2","4":"alpha-helix","5":"19","6":"0","7":"4","8":"0","9":"no","_rn_":"94_A"},{"1":"4_B","2":"10","3":"1","4":"dimer","5":"0","6":"21","7":"0","8":"2","9":"yes","_rn_":"4_B"},{"1":"6_B","2":"12","3":"6","4":"R1","5":"5","6":"113","7":"11","8":"51","9":"no","_rn_":"6_B"},{"1":"63_B","2":"12","3":"4","4":"cantilever","5":"0","6":"26","7":"0","8":"15","9":"no","_rn_":"63_B"},{"1":"70_B","2":"11","3":"4","4":"cantilever","5":"26","6":"26","7":"0","8":"6","9":"no","_rn_":"70_B"},{"1":"71_B","2":"11","3":"0","4":"cantilever","5":"28","6":"0","7":"0","8":"0","9":"yes","_rn_":"71_B"},{"1":"72_B","2":"12","3":"4","4":"cantilever","5":"20","6":"35","7":"2","8":"15","9":"yes","_rn_":"72_B"},{"1":"80_B","2":"8","3":"0","4":"wall","5":"18","6":"0","7":"0","8":"0","9":"no","_rn_":"80_B"},{"1":"92_B","2":"12","3":"1","4":"alpha-helix","5":"31","6":"47","7":"2","8":"1","9":"yes","_rn_":"92_B"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+
+
+### résidus conservés chez PR2 et pas chez PR1
+
+```r
+consvPR2.NotinPR1 <- setdiff(res.conserv.PR2, res.conserv.PR1)
+```
+
+Il y a 16 résidus qui sont impliqués dans le packing chez la plupart des PR1 mais pas chez PR2 : 40_A, 41_A, 42_A, 45_A, 58_A, 63_A, 99_A, 7_B, 21_B, 37_B, 41_B, 45_B, 46_B, 53_B, 55_B, 68_B.
+
+
+Pour chaque résidu, on regarde : 
+
+* Nombre de structures de PR1 et PR2 avec ces résidus dans le packing
+* la localisation de ces résidus dans la structure
+* le type d'atomes 
+* si c'est un résidu muté
+
+
+
+
+Détermine si les résidus sont mutés
+
+```r
+mut.diff2 <- rep("no", length = length(consvPR2.NotinPR1))
+names(mut.diff2) <- consvPR2.NotinPR1
+mut.diff2[intersect(res.muT, consvPR2.NotinPR1)] = "yes"
+```
+
+
+
+```r
+tmp.occ <- data.frame(consvPR2.NotinPR1, 
+                      occ.PR1[consvPR2.NotinPR1], 
+                      occ.PR2[consvPR2.NotinPR1],
+                      regionV[consvPR2.NotinPR1], 
+                      t(matrice3PR1[,consvPR2.NotinPR1]),
+                      t(matrice3PR2[,consvPR2.NotinPR1]),
+                      mut.diff2
+                      )
+colnames(tmp.occ) <- c("residues", "PR1.Occ", "PR2.Occ", "loc", 
+                       "BB.PR1", "SC.PR1",
+                       "BB.PR2", "SC.PR2", "mutation")
+tmp.occ
+```
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["residues"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["PR1.Occ"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["PR2.Occ"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["loc"],"name":[4],"type":["fctr"],"align":["left"]},{"label":["BB.PR1"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["SC.PR1"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["BB.PR2"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["SC.PR2"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["mutation"],"name":[9],"type":["fctr"],"align":["left"]}],"data":[{"1":"40_A","2":"6","3":"9","4":"elbow","5":"13","6":"0","7":"18","8":"23","9":"yes","_rn_":"40_A"},{"1":"41_A","2":"4","3":"10","4":"elbow","5":"0","6":"10","7":"23","8":"42","9":"yes","_rn_":"41_A"},{"1":"42_A","2":"6","3":"9","4":"elbow","5":"3","6":"18","7":"24","8":"51","9":"yes","_rn_":"42_A"},{"1":"45_A","2":"7","3":"8","4":"flaps","5":"21","6":"33","7":"16","8":"52","9":"no","_rn_":"45_A"},{"1":"58_A","2":"5","3":"6","4":"flaps","5":"0","6":"10","7":"0","8":"12","9":"yes","_rn_":"58_A"},{"1":"63_A","2":"7","3":"6","4":"cantilever","5":"0","6":"21","7":"0","8":"15","9":"no","_rn_":"63_A"},{"1":"99_A","2":"3","3":"7","4":"dimer","5":"12","6":"24","7":"14","8":"11","9":"yes","_rn_":"99_A"},{"1":"7_B","2":"7","3":"11","4":"R1","5":"0","6":"28","7":"7","8":"45","9":"yes","_rn_":"7_B"},{"1":"21_B","2":"5","3":"8","4":"fulcrum","5":"6","6":"21","7":"14","8":"38","9":"no","_rn_":"21_B"},{"1":"37_B","2":"7","3":"9","4":"elbow","5":"11","6":"15","7":"10","8":"25","9":"yes","_rn_":"37_B"},{"1":"41_B","2":"7","3":"7","4":"elbow","5":"15","6":"46","7":"20","8":"34","9":"yes","_rn_":"41_B"},{"1":"45_B","2":"3","3":"8","4":"flaps","5":"8","6":"10","7":"21","8":"14","9":"no","_rn_":"45_B"},{"1":"46_B","2":"7","3":"10","4":"flaps","5":"9","6":"26","7":"9","8":"28","9":"no","_rn_":"46_B"},{"1":"53_B","2":"7","3":"11","4":"flaps","5":"3","6":"53","7":"16","8":"39","9":"no","_rn_":"53_B"},{"1":"55_B","2":"6","3":"9","4":"flaps","5":"0","6":"7","7":"8","8":"34","9":"yes","_rn_":"55_B"},{"1":"68_B","2":"6","3":"8","4":"cantilever","5":"13","6":"0","7":"7","8":"30","9":"yes","_rn_":"68_B"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+
+
+
 
 
 Représentation du nombre de structures de PR1 ayant chaque résidu comme asymmétrique en fonction  du nombre de structures de PR1 ayant chaque résidu comme asymmétrique
@@ -1184,7 +1339,7 @@ text(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",],
      colnames(matriceStruct), pos=3, offset=0.3, cex=0.5 )
 ```
 
-<img src="figures/07_tests_multiplesunnamed-chunk-44-1.png" style="display: block; margin: auto;" />
+<img src="figures/07_tests_multiplesunnamed-chunk-53-1.png" style="display: block; margin: auto;" />
 
 
 On calcule ensuite la corrélation entre ces deux variables

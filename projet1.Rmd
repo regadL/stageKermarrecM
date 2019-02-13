@@ -8,43 +8,29 @@ output:
     highlight: zenburn
     toc: yes
     toc_depth: 3
-  slidy_presentation:
-    smart: no
-    slide_level: 2
-    self_contained: yes
+  html_document:
+    code_folding: show
+    df_print: paged
     fig_caption: yes
-    fig_height: 6
-    fig_width: 7
-    highlight: tango
-    incremental: no
+    highlight: pygments
     keep_md: yes
-    smaller: yes
-    theme: cerulean
+    self_contained: yes
+    theme: spacelab
     toc: yes
-    widescreen: yes
+    toc_depth: 3
+    toc_float: yes
   ioslides_presentation:
-    slide_level: 2
-    self_contained: no
     colortheme: dolphin
     fig_caption: yes
     fig_height: 6
     fig_width: 7
     fonttheme: structurebold
     highlight: tango
+    self_contained: no
+    slide_level: 2
     smaller: yes
     toc: yes
     widescreen: yes
-  html_document:
-    code_folding: show #hide
-    self_contained: yes
-    fig_caption: yes
-    highlight: pygments #pour les sorties R
-    theme: spacelab
-    toc: yes  #for add table of contents
-    toc_depth: 3
-    toc_float: yes
-    df_print: paged
-    keep_md: yes  #pour garder le .md after run
   beamer_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -57,6 +43,20 @@ output:
     slide_level: 2
     theme: Montpellier
     toc: yes
+  slidy_presentation:
+    fig_caption: yes
+    fig_height: 6
+    fig_width: 7
+    highlight: tango
+    incremental: no
+    keep_md: yes
+    self_contained: yes
+    slide_level: 2
+    smaller: yes
+    smart: no
+    theme: cerulean
+    toc: yes
+    widescreen: yes
 font-import: http://fonts.googleapis.com/css?family=Risque
 font-family: Garamond
 transition: linear
@@ -135,8 +135,8 @@ Proteases = c("1hhp","1hih","1hii","1hiv","1hpv","1hsh","1hsi","1ivp","1sdt","2h
 type = c("PR1","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR2","PR1","PR2","PR1","PR1","PR2","PR2","PR2","PR1","PR1","PR1","PR2","PR1","PR1")
 names(type) = Proteases
 
-
-
+pos.muT <-c(3,4,7,10,13,14,16,19,20,22,31:37,39:43,55:58,60:62,66:69,71:73,75:77,82,85,89,92:93,95,96,99)
+res.muT <-c(paste(pos.muT,"_A",sep=""), paste(pos.muT,"_B",sep=""))
 
 ```
 
@@ -579,6 +579,32 @@ length(which(pval.PR1 < 0.05/ncol(MatricePR1)))
 res.conserv.PR1 <- names(which(pval.PR1 < 0.05))
 ```
 
+Chez PR1, il y a `r length(res.conserv.PR1)` résidus qui sont impliqués dans le packing cristallin dans la majorité des PR1.
+
+
+On regarde dans combien de structures de PR1 ses résidus sont impliqués dans le packing
+
+```{r}
+occ.PR1 <- apply(MatricePR1,2,sum)
+occ.PR1[res.conserv.PR1]
+```
+
+
+On regarde dans combien de structures de PR1 ses résidus sont impliqués dans le packing
+Il faut différentier les chaînes A et B, car trois structures de PR1 n'ont pas de chaîne B.
+
+```{r}
+resA.1 <- intersect(res.conserv.PR1, colnames(MatricePR1)[grep("_A", colnames(MatricePR1))])
+resB.1 <- intersect(res.conserv.PR1, colnames(MatricePR1)[grep("_B", colnames(MatricePR1))])
+
+pourc.PR1 <- round(c(occ.PR1[resA.1] / nrow(MatricePR1),
+                     occ.PR1[resB.1] / (nrow(MatricePR1)-3))*100,2)
+
+barplot(pourc.PR1, las=2, ylab="% de structures avec le res dans packing")
+
+```
+
+Ces résidus conservés dans le packing de PR1 sont impliqués dans le packing dans `r round(mean(occ.PR1[res.conserv.PR1]),2)` (+/- `r round(sd(occ.PR1[res.conserv.PR1]),2)`) structures.
 
 
 
@@ -778,7 +804,7 @@ pheatmap(matriceChaineLatPR1[-27:-29,], cluster_rows = TRUE, cluster_cols = FALS
 ```
 
 
-# Etude du packing cristallin chez PR2
+# Détermination des résidus impliqués dans le packing cristallin chez PR1
 
 
 ## Identification des résidus impliqués dans le packing cristallin dans au moins une structure de PR2
@@ -794,26 +820,37 @@ MatricePR2 <- matrice[ProtPR2,]
 dim(MatricePR2)
 ```
 
-2. Calcul de la significativité 
+2. Calcul de la significativité pour déterminer les résidus conservés
 
 ```{r}
 pval.PR2 <- f.computPval(MatricePR2, nbrSimul=20000)
 res.conserv.PR2 <- names(which(pval.PR2 < 0.05))
-length(res.conserv.PR2)
 ```
 
+Chez PR2, il y a `r length(res.conserv.PR2)` résidus qui sont impliqués dans le packing cristallin dans la majorité des PR2.
 
-3. différence entre PR1 et PR2
 
-* résidus conservés chez PR1 et pas chez PR2
+On regarde dans combien de structures de PR1 ses résidus sont impliqués dans le packing
+
 ```{r}
-setdiff(res.conserv.PR1, res.conserv.PR2)
+occ.PR2 <- apply(MatricePR2,2,sum)
+occ.PR2[res.conserv.PR2]
 ```
 
-* résidus conservés chez PR2 et pas chez PR1
+On calcule le pourcentage de structures de PR2 contenant ces résidus dans le packing
+
 ```{r}
-setdiff(res.conserv.PR2, res.conserv.PR1)
+pourc.PR2 <- round(occ.PR2[res.conserv.PR2] / nrow(MatricePR2)*100,2)
+barplot(pourc.PR2, las=2, ylab="% de structures avec le res dans packing")
 ```
+
+Ces résidus conservés dans le packing de PR2 sont impliqués dans le packing dans `r round(mean(occ.PR2[res.conserv.PR2]),2)` (+/- `r round(sd(occ.PR2[res.conserv.PR2]),2)`) structures.
+
+
+
+
+
+
 
 3. Représentation sur une structure 3D des résidus impliqués dans le packing cristallin spécifiques de PR2
 
@@ -982,6 +1019,100 @@ pheatmap(matriceChaineLatPR2[-27:-29,], cluster_rows = TRUE, cluster_cols = FALS
 
 
 # Comparaison des résidus impliqués dans le packing cristallin chez PR1 et PR2
+
+
+## différence des résidus impliqués dans le packing chez PR1 et PR2
+
+### résidus conservés chez PR1 et pas chez PR2
+```{r}
+consvPR1.NotinPR2 <- setdiff(res.conserv.PR1, res.conserv.PR2)
+```
+
+Il y a `r length(consvPR1.NotinPR2)` résidus qui sont impliqués dans le packing chez la plupart des PR1 mais pas chez PR2 : `r consvPR1.NotinPR2`.
+
+Pour chaque résidu, on regarde : 
+
+* Nombre de structures de PR1 et PR2 avec ces résidus dans le packing
+* la localisation de ces résidus dans la structure
+* le type d'atomes 
+* si c'est un résidu muté
+
+
+```{r}
+regionfile <- read.table("description_regions.csv", sep=",")
+regionV = c(as.character(regionfile[,2]), as.character(regionfile[,2])) 
+names(regionV) <- c(paste(as.character(regionfile[,1]),"A", sep="_"), 
+                    paste(as.character(regionfile[,1]),"B", sep="_"))
+```
+
+
+Détermine si les résidus sont mutés
+```{r}
+mut.diff11 <- rep("no", length = length(consvPR1.NotinPR2))
+names(mut.diff11) <- consvPR1.NotinPR2
+mut.diff11[intersect(res.muT, consvPR1.NotinPR2)] = "yes"
+```
+
+
+```{r}
+tmp.occ <- data.frame(consvPR1.NotinPR2, 
+                      occ.PR1[consvPR1.NotinPR2], 
+                      occ.PR2[consvPR1.NotinPR2],
+                      regionV[consvPR1.NotinPR2], 
+                      t(matrice3PR1[,consvPR1.NotinPR2]),
+                      t(matrice3PR2[,consvPR1.NotinPR2]),
+                      mut.diff11
+                      )
+colnames(tmp.occ) <- c("residues", "PR1.Occ", "PR2.Occ", "loc", 
+                       "BB.PR1", "SC.PR1",
+                       "BB.PR2", "SC.PR2", "mutation")
+tmp.occ
+```
+
+
+### résidus conservés chez PR2 et pas chez PR1
+```{r}
+consvPR2.NotinPR1 <- setdiff(res.conserv.PR2, res.conserv.PR1)
+```
+
+Il y a `r length(consvPR2.NotinPR1)` résidus qui sont impliqués dans le packing chez la plupart des PR1 mais pas chez PR2 : `r consvPR2.NotinPR1`.
+
+
+Pour chaque résidu, on regarde : 
+
+* Nombre de structures de PR1 et PR2 avec ces résidus dans le packing
+* la localisation de ces résidus dans la structure
+* le type d'atomes 
+* si c'est un résidu muté
+
+
+
+
+Détermine si les résidus sont mutés
+```{r}
+mut.diff2 <- rep("no", length = length(consvPR2.NotinPR1))
+names(mut.diff2) <- consvPR2.NotinPR1
+mut.diff2[intersect(res.muT, consvPR2.NotinPR1)] = "yes"
+```
+
+
+```{r}
+tmp.occ <- data.frame(consvPR2.NotinPR1, 
+                      occ.PR1[consvPR2.NotinPR1], 
+                      occ.PR2[consvPR2.NotinPR1],
+                      regionV[consvPR2.NotinPR1], 
+                      t(matrice3PR1[,consvPR2.NotinPR1]),
+                      t(matrice3PR2[,consvPR2.NotinPR1]),
+                      mut.diff2
+                      )
+colnames(tmp.occ) <- c("residues", "PR1.Occ", "PR2.Occ", "loc", 
+                       "BB.PR1", "SC.PR1",
+                       "BB.PR2", "SC.PR2", "mutation")
+tmp.occ
+```
+
+
+
 
 
 Représentation du nombre de structures de PR1 ayant chaque résidu comme asymmétrique en fonction  du nombre de structures de PR1 ayant chaque résidu comme asymmétrique
