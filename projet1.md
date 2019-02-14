@@ -1,7 +1,7 @@
 ---
 title: "Etude du packing cristallin chez PR1 et PR2"
 author: "Leslie REGAD et Maxime KERMARREC"
-date: '2019-02-13'
+date: '2019-02-14'
 output:
   html_document:
     code_folding: show
@@ -14,18 +14,11 @@ output:
     toc: yes
     toc_depth: 3
     toc_float: yes
-  beamer_presentation:
-    colortheme: dolphin
+  pdf_document:
     fig_caption: yes
-    fig_height: 6
-    fig_width: 7
-    fonttheme: structurebold
-    highlight: tango
-    incremental: no
-    keep_tex: no
-    slide_level: 2
-    theme: Montpellier
+    highlight: zenburn
     toc: yes
+    toc_depth: 3
   ioslides_presentation:
     colortheme: dolphin
     fig_caption: yes
@@ -38,11 +31,18 @@ output:
     smaller: yes
     toc: yes
     widescreen: yes
-  pdf_document:
+  beamer_presentation:
+    colortheme: dolphin
     fig_caption: yes
-    highlight: zenburn
+    fig_height: 6
+    fig_width: 7
+    fonttheme: structurebold
+    highlight: tango
+    incremental: no
+    keep_tex: no
+    slide_level: 2
+    theme: Montpellier
     toc: yes
-    toc_depth: 3
   slidy_presentation:
     fig_caption: yes
     fig_height: 6
@@ -654,7 +654,7 @@ length(which(pval.PR1 < 0.05/ncol(MatricePR1)))
 ```
 
 ```
-[1] 24
+[1] 23
 ```
 
 ```r
@@ -1592,6 +1592,24 @@ matrice3PR2
 
 
 
+
+
+
+
+# Suite du projet : 
+
+Faire des classifications des protéines suivant : 
+
+1. le packing
+2. espace cristallin
+3. resolution
+4. le ligand
+5. le type de PR : PR1 // PR2
+
+Comparaison de ces classifications en utilisant l'indice de jaccard (cf. [Caumes et al., 2017](https://onlinelibrary.wiley.com/doi/full/10.1002/minf.201700025))
+
+
+
 ###Etudier le lien entre la conservation des résidus impliqués dans le packing cristallin et l'espace cristallo des structures
 
 1. Déterminer l'espace cristallographique de chaque structure en allant sur la site de la PDB (rcsb.org)
@@ -1727,3 +1745,66 @@ Region2 = c("dimer","R1","fulcrum","catalytic","R2","flapelbow","flaps","cantile
 
 Region1 = c("dimer","dimer","dimer","dimer","dimer","R1","R1","R1","R1","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","R2","R2","R2","R2","R2","R2","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","R3","R3","R3","R3","wall","wall","wall","wall","R4","R4","R4","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","dimer","dimer","dimer","dimer","dimer","dimer","dimer","dimer","dimer","R1","R1","R1","R1","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","fulcrum","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","catalytic","R2","R2","R2","R2","R2","R2","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flapelbow","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","flaps","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","cantilever","R3","R3","R3","R3","wall","wall","wall","wall","R4","R4","R4","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","alphahelix","dimer","dimer","dimer","dimer")
 ```
+
+
+
+# Classement des protéines suivant leur ligand
+
+
+Récupération des descripteurs physicochimiques et géométriques des ligands. Les descripteurs physicochimiques ont été calculés avec Faf-drug, et les descripteurs géométriques ont été calculés avec RADII.
+
+```r
+descLig <- read.table("matrice_descripteurs_ligand.csv", header=T, sep=",")
+rownames(descLig) <- as.character(descLig[,"ID"])
+dim(descLig)
+```
+
+```
+[1] 28 16
+```
+
+```r
+descLig2 <- read.table("results_all_ligands_fafdrug_ChoixDesc.csv", header=T, sep=",")
+rownames(descLig2) <- as.character(descLig2[,"ID"])
+dim(descLig2)
+```
+
+```
+[1] 28 24
+```
+
+```r
+mat.DescLig <- data.frame(descLig[,-(1:2)], descLig2[rownames(descLig),-(1:4)])
+dim(mat.DescLig)
+```
+
+```
+[1] 28 34
+```
+
+
+suppression des descripteurs corrélés avec un coefficient de corrélation supérieur à 0.9.
+
+```r
+var.sup <- findCorrelation(cor(mat.DescLig), cutoff = 0.9)
+```
+
+On supprime 11 : tPSA, HBD_HBA, HBA, RADIUS.CYLINDER, DIAMETER.HULL, PSI, SURFACE.HULL, logP, MW, HeavyAtoms, INERTIA.2
+
+On supprimer donc ces descripteurs dans la matrice : 
+
+```r
+mat.DescLigNoCor <- mat.DescLig[, -var.sup]
+```
+
+
+On réalise ensuite la classification hiérarchique en utilisant une distance Euclidienne entre les ligands et la méthode ward comme méthode d'aggrégation. Pour calculer les distances Euclidiennes, on utilise des données centrées et réduites.
+
+
+```r
+hc.res <- hclust(dist(scale(mat.DescLigNoCor,T,T)), method = "ward.D2")
+plot(hc.res, hang=-1)
+```
+
+<img src="figures/07_tests_multiplesunnamed-chunk-61-1.png" style="display: block; margin: auto;" />
+

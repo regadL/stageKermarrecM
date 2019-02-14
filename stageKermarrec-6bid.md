@@ -1,7 +1,7 @@
 ---
 title: "Stage de Maxime Kermarrec (L3-BI)"
 author: "Leslie REGAD et Maxime KERMARREC"
-date: '2019-02-11'
+date: '2019-02-14'
 output:
   html_document:
     code_folding: show #hide
@@ -84,5 +84,14 @@ du Vendredi 18/01/2018 au ..
 [Résultat](projet1.html)
 
 
+## Planning pour le vendredi 11/02/0219 
+A finir : 
+
+* les représentations des positions impliquées dans le packing sur les structures 3D  
+* Extraire les informations sur le packing cristallin et sur la résolution
+* Classer les protéines suivant leur ligand. Pour cela, réaliser une classification hiérarchique des ligands [code](projet1.html#classement_des_protéines_suivant_leur_ligand)
+
+Il faudrait que ces parties soient finies pour la semaine prochaine.
+Que je puisse voir les résultats, car je vais devoir envoyer le papier en fin de semaine prochaine.
 
 
