@@ -103,7 +103,7 @@ Pour cela, on va identifier les résidus qui sont :
 PDB code | type | remarque
 ---------|------|---------
 3s45 | PR2 |
-1hhp | PR1 |
+1hhp | PR1 | (monomère)
 1hih | PR1 |
 1hii | PR2 |
 1hiv | PR1 |
@@ -249,6 +249,12 @@ On voit tout d'abord :
 * on n'a pas une séparation PR1-PR2
 * On remarque des positions qui sont impliquées dans le packing chez la majorité des structures ex 4, 6A, 7A
 
+
+
+```{r}
+hc.res1 <- hclust(dist(matrice[-27:-29,], method = "binary"), method="ward.D2")
+plot(hc.res1)
+```
 
 
 6. Représentation sur une structure 3D des résidus impliqués dans packing chez au moins une structure.
@@ -510,7 +516,7 @@ occ <- apply(matrice,2,sum)
 resA <- colnames(matrice)[grep("_A", colnames(matrice))]
 resB<- colnames(matrice)[grep("_B", colnames(matrice))]
 
-nbrSimul <- 10000
+nbrSimul <- 1000
 
 occ.SupbyPos <- rep(0, length = ncol(matrice))
 names(occ.SupbyPos) <- colnames(matrice)
@@ -1140,14 +1146,6 @@ cor(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",])
 
 
 
-
-
-
-
-
-
-
-
 ##Localisation des résidus impliqués dans le packing cristallin
 
 ###Pour PR
@@ -1158,7 +1156,8 @@ RegionPacking = c("dimer1A","R1A","fulcrumA","catalyticA","R2A","elbowA","flapsA
 ResidueTotaux = c("1_A","2_A","3_A","4_A","5_A","6_A","7_A","8_A","9_A","10_A","11_A","12_A","13_A","14_A","15_A","16_A","17_A","18_A","19_A","20_A","21_A","22_A","23_A","24_A","25_A","26_A","27_A","28_A","29_A","30_A","31_A","32_A","33_A","34_A","35_A","36_A","37_A","38_A","39_A","40_A","41_A","42_A","43_A","44_A","45_A","46_A","47_A", "48_A", "49_A", "50_A", "51_A", "52_A", "53_A", "54_A", "55_A", "56_A", "57_A", "58_A", "59_A", "60_A", "61_A","62_A", "63_A","64_A", "65_A", "66_A", "67_A", "68_A","69_A", "70_A", "71_A", "72_A", "73_A", "74_A","75_A","76_A","77_A", "78_A", "79_A", "80_A", "81_A", "82_A", "83_A","84_A","85_A","86_A","87_A", "88_A", "89_A", "90_A", "91_A", "92_A", "93_A", "94_A", "95_A","96_A", "97_A", "98_A", "99_A", "1_B", "2_B", "3_B", "4_B","5_B","6_B","7_B","8_B","9_B","10_B", "11_B", "12_B", "13_B", "14_B","15_B", "16_B", "17_B", "18_B", "19_B","20_B","21_B","22_B","23_B","24_B","25_B","26_B","27_B","28_B", "29_B", "30_B" ,"31_B","32_B","33_B", "34_B", "35_B" ,"36_B", "37_B", "38_B", "39_B" ,"40_B", "41_B", "42_B", "43_B", "44_B", "45_B", "46_B", "47_B", "48_B", "49_B","50_B", "51_B", "52_B", "53_B", "54_B", "55_B", "56_B" ,"57_B", "58_B", "59_B", "60_B" ,"61_B", "62_B", "63_B","64_B", "65_B","66_B", "67_B" ,"68_B", "69_B", "70_B", "71_B","72_B", "73_B", "74_B","75_B", "76_B","77_B", "78_B", "79_B", "80_B", "81_B", "82_B", "83_B","84_B","85_B","86_B", "87_B", "88_B","89_B","90_B", "91_B", "92_B","93_B", "94_B", "95_B", "96_B","97_B", "98_B", "99_B")
 
 regionfile <- read.table("description_regions.csv", sep=",")
-regionV = (paste(as.character(regionfile[,2])))
+regionV = c(paste(as.character(regionfile[,2]),"A",sep=""),
+            paste(as.character(regionfile[,2]),"B",sep=""))
 
 for (i in 1:99) {
   regionV[i+99]=regionV[i]
@@ -1169,7 +1168,7 @@ for (i in 1:length(ResidueTotaux)) {
   region = (paste(as.character(regionV[i]),as.character(ResidueTotaux[i]),  sep="_"))
   regionSyn[i] = region
 }
-names(ResidueTotaux) = regionSyn
+names(ResidueTotaux) = regionV
 
 
 matrice3PR <- matrix(0,nrow=length(Proteases),ncol=length(RegionPacking))
@@ -1179,35 +1178,49 @@ colnames(matrice3PR) <- RegionPacking
 
 listAtomSyn = NULL
 
-for (i in NbProt){
+
+#[grep("_A", colnames(matrice))]
+
+for (i in NbProt) {
+  listAtomSyn = NULL
   filein = listFile[i]
   N = read.table(paste("fileByProt3",filein,sep="/"))
   listAtom = (paste(as.character(N[,6]), as.character(N[,5]), sep="_"))
   listAtomSyn = (c(listAtom,listAtomSyn))
-}
-
-listAtomSyn2 = NULL
-
-for (i in NbProt){
-  filein = listFile[i]
-  N = read.table(paste("fileByProt3",filein,sep="/"))
-  listAtom = (paste(as.character(N[,3])))
-  listAtomSyn2 = (c(listAtom,listAtomSyn2))
-}
-
-
-#[grep("_A", colnames(matrice))]
-
-names(listAtomSyn) = listAtomSyn2
-for (j in 1:length(RegionPacking)) {
-  for (k in 1:length(NbAtomeinPC.2)) {
+  
+  for (j in 1:length(listAtomSyn)) {
     
-    if (sort.res[j] == listAtomSyn[k]){
-       
-       matrice3PR[i,j] = 1
+    for (k in 1:length(ResidueTotaux)) {
+      if (listAtomSyn[j] == ResidueTotaux[k]){
+        names(listAtomSyn[j]) = names(ResidueTotaux[k])
+        matrice3PR[i,names(listAtomSyn[j])] = matrice3PR[i,names(listAtomSyn[j])] + 1
+      }
     }
   }
 }
+
+matrice3PR
+
+
+
+
+
+
+matrice3PR <- matrix(0,nrow=length(Proteases),ncol=length(RegionPacking))
+rownames(matrice3PR) <- Proteases
+colnames(matrice3PR) <- RegionPacking
+
+
+
+for(region in colnames(matrice3PR)){
+  resSel <- intersect(colnames(matrice), ResidueTotaux[which(regionV==region)])
+  if(length(resSel) != 0){
+    for(prot in rownames(matrice3PR)){
+      matrice3PR[prot, region] <- sum(matrice[prot, resSel])
+    }
+  }
+}
+
 
 ```
 
@@ -1262,8 +1275,6 @@ for (j in NbProt){
   }
 }
 
-
-list.bk = c("C","CA","N","O")
 names(listAtomSyn) = listAtomSyn2
 
 for (j in 1:length(sort.res)) {
@@ -1445,15 +1456,24 @@ Region1 = c("dimer","dimer","dimer","dimer","dimer","R1","R1","R1","R1","fulcrum
 
 
 Récupération des descripteurs physicochimiques et géométriques des ligands. Les descripteurs physicochimiques ont été calculés avec Faf-drug, et les descripteurs géométriques ont été calculés avec RADII.
+
+* descripteurs géométriques : Volume, surface, forme
 ```{r}
 descLig <- read.table("matrice_descripteurs_ligand.csv", header=T, sep=",")
 rownames(descLig) <- as.character(descLig[,"ID"])
 dim(descLig)
+```
 
+* descripteurs physicochimiques : hydrophobicité, charge, polarité, ...
+```{r}
 descLig2 <- read.table("results_all_ligands_fafdrug_ChoixDesc.csv", header=T, sep=",")
 rownames(descLig2) <- as.character(descLig2[,"ID"])
 dim(descLig2)
+```
 
+* combine les deux descriptions
+
+```{r}
 mat.DescLig <- data.frame(descLig[,-(1:2)], descLig2[rownames(descLig),-(1:4)])
 dim(mat.DescLig)
 
@@ -1470,6 +1490,7 @@ On supprime `r length(var.sup)` : `r colnames(mat.DescLig)[var.sup]`
 On supprimer donc ces descripteurs dans la matrice : 
 ```{r}
 mat.DescLigNoCor <- mat.DescLig[, -var.sup]
+dim(mat.DescLigNoCor )
 ```
 
 
@@ -1478,5 +1499,11 @@ On réalise ensuite la classification hiérarchique en utilisant une distance Eu
 ```{r}
 hc.res <- hclust(dist(scale(mat.DescLigNoCor,T,T)), method = "ward.D2")
 plot(hc.res, hang=-1)
+abline(h=10)
+```
+
+Création des groupes
+```{r}
+groupe = cutree(hc.res, h=10)
 ```
 
