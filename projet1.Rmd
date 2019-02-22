@@ -393,13 +393,18 @@ select respackB, resid 102+107+137+140+141+142+143+144+145+146+153+157+179+181+1
 
 ![Une protéase du VIH 2 avec tous les résidus impliqués dans la structure](pymol3ebz.png){width=65%}
 
+Légende: Les résidus en Vert ne sont pas impliqués dans le packing cristallin
+         Les résidus en Rouge sont impliqués dans le packing cristallin de la chaine A
+         Les résidus en Bleu sont impliqués dans le packing cristallin de la chaine A
 
 
+![Une protéase du VIH 2 avec tous les résidus impliqués dans la structure](3ebz etude comparative.png){width=65%}
 
-
-
-
-
+Légende: Les résidus en Vert ne sont pas impliqués dans le packing cristallin
+         Les résidus en Rouge sont impliqués dans le packing cristallin de la chaine A chez les prtéases de type 2
+         Les résidus en Bleu sont impliqués dans le packing cristallin de la chaine B chez les prtéases de type 2
+         Les résidus en Jaune sont impliqués dans le packing cristallin de la chaine A chez toutes les protéases (donc ces résidus représentent les résidus qui sont chez PR1 mais pas chez PR2)
+         Les résidus en Magenta sont impliqués dans le packing cristallin de la chaine B chez toutes les protéases (donc ces résidus représentent les résidus qui sont chez PR1 mais pas chez PR2)
 
 
 
@@ -1517,4 +1522,93 @@ Création des groupes
 ```{r}
 groupe = cutree(hc.res, h=10)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Planning pour le vendredi 22/02/2019 
+
+* A l'aide du site www.rcsb.org, déterminer pour chaque protéine :    
+    + son groupe cristallin. Exemple pour 1hsi:  	P 1 21 1  
+    + sa résolution. Exemple pour 1hsi: 2.5  
+* Déterminer les groupes de la classification hiérarchique obtenue à partir du packing cristallin. Pour cela, à l'aide de la fonction  `cutree` couper l'arbre crée en 5 groupes.  
+* Pour chaque groupe,   
+    + Est-ce que les protéines appartenant aux mêmes groupes appartiennent au même groupe cristallin ?   
+    + Est-ce que les protéines appartenant aux mêmes groupes ont une résolution proche    
+    + Est-ce que les protéines appartenant aux mêmes groupes sont complexés au même ligand    
+Pour répondre à ces questions, il faudrait faire la figure 5 du papier [Triki et al., 2018](biblio/Triki_scReports_2018_asym.pdf).  
+Avec un logiciel de gestion de figure gimp, inkscape power point ou openoffice, il faudrait réalisé une figure comme la figure 5 où :    
+   + la 1ere figure correspond à la classification hiérarchique   
+   + la 1ere ligne de cases de couleur représente le groupe cristallin  
+   + la 2ème ligne de cases de couleur représente la résolution  
+   + la 3ème ligne de cases de couleur représente la classe de ligand (cf. la classification des ligands que l'on a réalisé)  
+   + la 4ème ligne de cases de couleur représente PR1/PR2  
+* Pour l'évaluation de votre stage, vous aurez une soutenance à faire. Commencer à résumer ce travail fait sur le packing cristallin dans une présentation. Pensez que les membres du jury seront mixtes, informaticiens, biologistes et bioinformaticiens, statisticiens.
+
+
+
+
+
+
+
+2hpf | PR2 | P 65           3.0
+
+2mip | PR2 | P 43           2.2
+
+2nph | PR1 | P 61           1.65
+
+
+
+
+1sdt | PR1 | P 21 21 2      1.3
+2hb3 | PR1 | P 21 21 2      1.35
+
+
+1hhp | PR1 | P 41 21 2      2.7
+2hb4 | PR1 | P 41 21 2      2.15
+3phv | PR1 | P 41 21 2      2.7
+
+
+3ebz | PR2 | C 1 2 1        1.2
+3ec0 | PR2 | C 1 2 1        1.18
+3ecg | PR2 | C 1 2 1        1.18
+3s45 | PR2 | C 1 2 1        1.51
+
+
+3nu3 | PR1 | P 21 21 2      1.02
+2z4o | PR1 | P 21 21 2      1.6
+2ien | PR1 | P 21 21 2      1.3
+
+
+4hla | PR1 | P 61           1.95
+4ll3 | PR1 | P 61           1.95
+1hpv | PR1 | P 61           1.9
+
+
+1ivp | PR2 | P 21 21 21     2.5
+1hih | PR1 | P 21 21 21     2.2
+1hii | PR2 | P 21 21 21     2.3
+1hiv | PR1 | P 21 21 21     2.0
+3ekv | PR1 | P 21 21 21     1.75
+
+
+2hpe | PR2 | P 1 21 1       2.0
+1hsh | PR2 | P 1 21 1       1.9
+1hsi | PR2 | P 1 21 1       2.5
+1hsh | PR2 | P 1 21 1       1.9
+
+
+
+
+
 
