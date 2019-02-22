@@ -108,8 +108,13 @@ A finir :
 * Extraire les informations sur le packing cristallin et sur la résolution
 * Classer les protéines suivant leur ligand. Pour cela, réaliser une classification hiérarchique des ligands [code](projet1.html#classement_des_protéines_suivant_leur_ligand)
 
+
+
+
 Il faudrait que ces parties soient finies pour la semaine prochaine.
 Que je puisse voir les résultats, car je vais devoir envoyer le papier en fin de semaine prochaine.
+
+
 
 
 ## Planning pour le vendredi 22/02/2019 
@@ -131,5 +136,7 @@ Avec un logiciel de gestion de figure gimp, inkscape power point ou openoffice, 
    + la 4ème ligne de cases de couleur représente PR1/PR2  
 * Pour l'évaluation de votre stage, vous aurez une soutenance à faire. Commencer à résumer ce travail fait sur le packing cristallin dans une présentation. Pensez que les membres du jury seront mixtes, informaticiens, biologistes et bioinformaticiens, statisticiens.
     
- 
-    
+
+
+
+
