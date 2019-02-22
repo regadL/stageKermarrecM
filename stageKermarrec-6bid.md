@@ -1,7 +1,7 @@
 ---
 title: "Stage de Maxime Kermarrec (L3-BI)"
 author: "Leslie REGAD et Maxime KERMARREC"
-date: '2019-02-14'
+date: '2019-02-22'
 output:
   html_document:
     code_folding: show #hide
@@ -95,3 +95,24 @@ Il faudrait que ces parties soient finies pour la semaine prochaine.
 Que je puisse voir les résultats, car je vais devoir envoyer le papier en fin de semaine prochaine.
 
 
+## Planning pour le vendredi 22/02/0219 
+
+* A l'aide du site www.rcsb.org, déterminer pour chaque protéine :    
+    + son groupe cristallin. Exemple pour 1hsi:  	P 1 21 1  
+    + sa résolution. Exemple pour 1hsi: 2.5  
+* Déterminer les groupes de la classification hiérarchique obtenue à partir du packing cristallin. Pour cela, à l'aide de la fonction  `cutree` couper l'arbre crée en 5 groupes.  
+* Pour chaque groupe,   
+    + Est-ce que les protéines appartenant aux mêmes groupes appartiennent au même groupe cristallin ?   
+    + Est-ce que les protéines appartenant aux mêmes groupes ont une résolution proche    
+    + Est-ce que les protéines appartenant aux mêmes groupes sont complexés au même ligand    
+Pour répondre à ces questions, il faudrait faire la figure 5 du papier [Triki et al., 2018](biblio/Triki_scReports_2018_asym.pdf).  
+Avec un logiciel de gestion de figure gimp, inkscape power point ou openoffice, il faudrait réalisé une figure comme la figure 5 où :    
+   + la 1ere figure correspond à la classification hiérarchique   
+   + la 1ere ligne de cases de couleur représente le groupe cristallin  
+   + la 2ème ligne de cases de couleur représente la résolution  
+   + la 3ème ligne de cases de couleur représente la classe de ligand (cf. la classification des ligands que l'on a réalisé)  
+   + la 4ème ligne de cases de couleur représente PR1/PR2  
+* Pour l'évaluation de votre stage, vous aurez une soutenance à faire. Commencer à résumer ce travail fait sur le packing cristallin dans une présentation. Pensez que les membres du jury seront mixtes, informaticiens, biologistes et bioinformaticiens, statisticiens.
+    
+    
+    
