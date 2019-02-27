@@ -71,7 +71,7 @@ options(width = 300)
 # options(encoding = 'UTF-8')
 knitr::opts_chunk$set(
   fig.width = 7, fig.height = 5, 
-  fig.path = 'figures/07_tests_multiples',
+  fig.path = 'figures/suivi_',
   fig.align = "center", 
   size = "tiny", 
   echo = TRUE, eval = TRUE, 
@@ -139,4 +139,12 @@ Avec un logiciel de gestion de figure gimp, inkscape power point ou openoffice, 
 
 
 
+
+## Planning pour le vendredi 01/03/2019 
+
+A partir d'aujourd'hui, on change de projet.
+Cette fois-ci vous allez travailler sur la comparaison de la flexibilité des atomes de ligands.
+
+* Etape 1 : Classer les atomes de ligands des PR1  
+* Etape 2 : Classer les atomes de ligands des PR2  
 
