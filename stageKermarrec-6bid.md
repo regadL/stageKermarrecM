@@ -1,7 +1,7 @@
 ---
 title: "Stage de Maxime Kermarrec (L3-BI)"
 author: "Leslie REGAD et Maxime KERMARREC"
-date: '2019-02-22'
+date: '2019-02-27'
 output:
   html_document:
     code_folding: show #hide
@@ -84,18 +84,30 @@ du Vendredi 18/01/2018 au ..
 [Résultat](projet1.html)
 
 
-## Planning pour le vendredi 11/02/0219 
+## Planning pour le vendredi 11/02/2019 
 A finir : 
 
 * les représentations des positions impliquées dans le packing sur les structures 3D  
 * Extraire les informations sur le packing cristallin et sur la résolution
 * Classer les protéines suivant leur ligand. Pour cela, réaliser une classification hiérarchique des ligands [code](projet1.html#classement_des_protéines_suivant_leur_ligand)
 
+
+
+
 Il faudrait que ces parties soient finies pour la semaine prochaine.
 Que je puisse voir les résultats, car je vais devoir envoyer le papier en fin de semaine prochaine.
 
 
-## Planning pour le vendredi 22/02/0219 
+
+# Projet 2 : Comparaison de la flexibilité des atomes des ligands chez PR1 et PR2
+
+début du projet : vendredi 01/03/2019  
+
+
+[Résultat](projet2.html)
+
+
+## Planning pour le vendredi 22/02/2019 
 
 * A l'aide du site www.rcsb.org, déterminer pour chaque protéine :    
     + son groupe cristallin. Exemple pour 1hsi:  	P 1 21 1  
@@ -114,5 +126,15 @@ Avec un logiciel de gestion de figure gimp, inkscape power point ou openoffice, 
    + la 4ème ligne de cases de couleur représente PR1/PR2  
 * Pour l'évaluation de votre stage, vous aurez une soutenance à faire. Commencer à résumer ce travail fait sur le packing cristallin dans une présentation. Pensez que les membres du jury seront mixtes, informaticiens, biologistes et bioinformaticiens, statisticiens.
     
-    
-    
+
+
+
+
+## Planning pour le vendredi 01/03/2019 
+
+A partir d'aujourd'hui, on change de projet.
+Cette fois-ci vous allez travailler sur la comparaison de la flexibilité des atomes de ligands.
+
+* Etape 1 : Classer les atomes de ligands des PR1  
+* Etape 2 : Classer les atomes de ligands des PR2  
+
