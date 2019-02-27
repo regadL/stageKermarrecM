@@ -272,6 +272,88 @@ On voit que :
 
 
 
+```{r}
+library(randomForest)
+
+
+#regarde s'il y a des variables avec variance nulle
+v.var <- apply(matrice[-27:-29,],2,var)
+
+var.supp <- which(v.var ==0)
+
+if(length(var.supp)!=0){
+  mat.tmp <- matrice[-27:-29,-var.supp]
+}else{
+  mat.tmp <- matrice[-27:-29,-var.supp]
+}
+
+dim(mat.tmp)
+mat.app <- data.frame(mat.tmp, as.factor(type[rownames(matrice)]))
+colnames(mat.app) <- c(paste("p",colnames(mat.tmp),sep="."), "PR.type")
+
+rf.fit <- randomForest(PR.type~., data = mat.app)
+plot(rf.fit)
+
+
+v.err <-  NULL
+v.mtry <- c(3,6, 12, 24, 48, 84, 150)
+for(i in v.mtry){
+    set.seed(123)
+    rf.fit <- rf.fit <- randomForest(PR.type~., data = mat.app, ntree = 250, mtry=i)
+    v.err <- c(v.err, rf.fit$err.rate[250,1])
+}
+
+plot(v.mtry, v.err, type ="b", xlab="mtry values", ylab="taux d'erreur", xaxt="n")
+axis(1, at=v.mtry, labels=v.mtry, las=2)
+
+
+
+
+v.err <-  NULL
+v.mtry <- seq(50,150,by=10)
+for(i in v.mtry){
+    set.seed(123)
+    rf.fit <- rf.fit <- randomForest(PR.type~., data = mat.app, ntree = 250, mtry=i)
+    v.err <- c(v.err, rf.fit$err.rate[250,1])
+}
+
+plot(v.mtry, v.err, type ="b", xlab="mtry values", ylab="taux d'erreur", xaxt="n")
+axis(1, at=v.mtry, labels=v.mtry, las=2)
+
+
+
+
+rf.fit <- randomForest(PR.type~., data = mat.app, ntree = 150, ntry=90, importance=T)
+print(rf.fit)
+
+
+imp<- importance(rf.fit, scale=T)[,"MeanDecreaseAccuracy"]
+varImpPlot(rf.fit, type=1)
+```
+
+
+```{r}
+
+count.sup <- rep(0, length = ncol(mat.tmp))
+names(count.sup) = paste("p",colnames(mat.tmp),sep=".")
+
+niter = 5000
+for(i in 1:niter){
+    mat.app.alea <- data.frame(mat.tmp, as.factor(sample(type)))
+    colnames(mat.app.alea) <- c(paste("p",colnames(mat.tmp),sep="."), "PR.type")
+    rf.fit.alea <- randomForest(PR.type~., data = mat.app.alea, ntree = 150, ntry=90, importance=T)
+    imp.alea <- importance(rf.fit.alea, scale=T)[,"MeanDecreaseAccuracy"]
+    diff.imp <- imp.alea - imp
+    count.sup[which(diff.imp>0)] = count.sup[which(diff.imp>0)]+1
+}
+
+count.sup / niter
+length(which(count.sup<0.05))
+```
+
+
+
+
 
 6. Représentation sur une structure 3D des résidus impliqués dans packing chez au moins une structure.
 $\rightarrow$ liste des résidus dans le packing dans au  moins une structure de PR2
