@@ -269,15 +269,20 @@ Voici le code que j'avais fait précédemment pour classer les atomes des ligand
     + en colonnes les coordonnées X, Y et Z (+ autre info des fichiers PDB).  
 Les fichiers des ligands se trouvent dans cet exemple dans le répertoire PDB/Lig/
 
+
 ```{r matAllLig, echo = TRUE, eval=FALSE}
 matAllLig = NULL
-for (i in dir("PDB/Lig/")){
+
+for (i in dir("data/ligands_pdb_cleaned_file_ATOM")){
   codePDB = unlist(strsplit(i,"_"))[1]
-  fileLig = read.table(paste("PDB/Lig/",i,sep=""))
+  fileLig = read.table(paste("data/ligands_pdb_cleaned_file_ATOM",i,sep="/"))
   matAdd = data.frame(fileLig, rep(codePDB, length=nrow(fileLig)))
   matAllLig = rbind(matAllLig,matAdd )
 }
+
 ```
+
+
 
 * étape 2 : Classification des atomes des ligands.  
     + calcul la distance Euclidienne entre tous les ligands à partir de leurs coordonnées 3D
