@@ -303,7 +303,7 @@ Pour les différents seuils :
 Le meilleur seuil est le plus grand seuil pour lequel il y a 0 protéine qui a au moins deux atomes dans un même ligand
 
 ```{r identifSeuil, echo=TRUE, eval=FALSE}
-for (HS in seq(0.2,0.3,by=0.0005)){
+for (HS in seq(0.7,1.2,by=0.0005)){
   groupeAt = cutree(hc, h=HS)
   matAllLig.tmp = data.frame(matAllLig, groupeAt)
   tc = table(matAllLig.tmp[,13], matAllLig.tmp[,14])
