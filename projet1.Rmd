@@ -66,6 +66,7 @@ transition: linear
 library(knitr)
 library(pheatmap)
 library(caret)
+library(randomForest)
 #library(kableExtra)
 # library(formattable)
 options(width = 300)
@@ -139,6 +140,11 @@ names(type) = Proteases
 pos.muT <-c(3,4,7,10,13,14,16,19,20,22,31:37,39:43,55:58,60:62,66:69,71:73,75:77,82,85,89,92:93,95,96,99)
 res.muT <-c(paste(pos.muT,"_A",sep=""), paste(pos.muT,"_B",sep=""))
 
+
+regionfile <- read.table("description_regions.csv", sep=",")
+regionV = c(as.character(regionfile[,2]), as.character(regionfile[,2])) 
+names(regionV) <- c(paste(as.character(regionfile[,1]),"A", sep="_"), 
+                    paste(as.character(regionfile[,1]),"B", sep="_"))
 ```
 
 
@@ -236,11 +242,57 @@ dim(matrice)
 Utilisation la commande `pheatmap` du package `pheatmap`
 
 ```{r colorMat }
+
 pheatmap(matrice[-27:-29,], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:1, col=c("white", "red"),
          clustering_distance_rows = "binary")
 ```
 
 Les protéines sont classées suivant la distance 'binary' (aka asymmetric binary): The vectors are regarded as binary bits, so non-zero elements are ‘on’ and zero elements are ‘off’. The distance is the proportion of bits in which only one is on amongst those in which at least one is on.
+
+
+
+
+On refait la classification mais on colore en bleu pour les PR1
+```{r}
+mat2 <- matrice[-27:-29,]
+
+mat2.PR1 <- mat2[names(which(type=="PR1")),]
+mat2.PR1[which(mat2.PR1==1)]=2
+
+
+mat2 = rbind(mat2.PR1, mat2[names(which(type=="PR2")),])
+
+svg("figures/heatmap_resPack.svg", width=18)
+pheatmap(mat2, cluster_rows = TRUE, cluster_cols = FALSE, br=-1:2, col=c("white", "red", "blue"),
+         clustering_distance_rows = "binary")
+dev.off()
+```
+
+
+
+On sépare la chaine A et chaine B
+```{r}
+svg("figures/heatmap_resPack_chainA.svg", width=18)
+supp.apo = c(1, 7, 13, 18)
+mat2.ssapo = mat2[-supp.apo,]
+resA <- grep("_A", colnames(mat2))
+pheatmap(mat2.ssapo[,resA], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:2, col=c("white", "red", "blue"),
+         clustering_distance_rows = "binary")
+dev.off()
+
+
+svg("figures/heatmap_resPack_chainB.svg", width=18)
+resB <- grep("_B", colnames(mat2))
+pheatmap(mat2.ssapo[-c(1,7,13),resB], cluster_rows = TRUE, cluster_cols = FALSE, br=-1:2, col=c("white", "red", "blue"),
+         clustering_distance_rows = "binary")
+dev.off()
+
+
+
+```
+
+
+
 
 **Analyse** :   
 On voit tout d'abord : 
@@ -270,86 +322,6 @@ On voit que :
 
 *To do : Regarder si les protéines de ces 5 groupes appartiennent au même espace cristallin.*
 
-
-
-```{r}
-library(randomForest)
-
-
-#regarde s'il y a des variables avec variance nulle
-v.var <- apply(matrice[-27:-29,],2,var)
-
-var.supp <- which(v.var ==0)
-
-if(length(var.supp)!=0){
-  mat.tmp <- matrice[-27:-29,-var.supp]
-}else{
-  mat.tmp <- matrice[-27:-29,-var.supp]
-}
-
-dim(mat.tmp)
-mat.app <- data.frame(mat.tmp, as.factor(type[rownames(matrice)]))
-colnames(mat.app) <- c(paste("p",colnames(mat.tmp),sep="."), "PR.type")
-
-rf.fit <- randomForest(PR.type~., data = mat.app)
-plot(rf.fit)
-
-
-v.err <-  NULL
-v.mtry <- c(3,6, 12, 24, 48, 84, 150)
-for(i in v.mtry){
-    set.seed(123)
-    rf.fit <- rf.fit <- randomForest(PR.type~., data = mat.app, ntree = 250, mtry=i)
-    v.err <- c(v.err, rf.fit$err.rate[250,1])
-}
-
-plot(v.mtry, v.err, type ="b", xlab="mtry values", ylab="taux d'erreur", xaxt="n")
-axis(1, at=v.mtry, labels=v.mtry, las=2)
-
-
-
-
-v.err <-  NULL
-v.mtry <- seq(50,150,by=10)
-for(i in v.mtry){
-    set.seed(123)
-    rf.fit <- rf.fit <- randomForest(PR.type~., data = mat.app, ntree = 250, mtry=i)
-    v.err <- c(v.err, rf.fit$err.rate[250,1])
-}
-
-plot(v.mtry, v.err, type ="b", xlab="mtry values", ylab="taux d'erreur", xaxt="n")
-axis(1, at=v.mtry, labels=v.mtry, las=2)
-
-
-
-
-rf.fit <- randomForest(PR.type~., data = mat.app, ntree = 150, ntry=90, importance=T)
-print(rf.fit)
-
-
-imp<- importance(rf.fit, scale=T)[,"MeanDecreaseAccuracy"]
-varImpPlot(rf.fit, type=1)
-```
-
-
-```{r}
-
-count.sup <- rep(0, length = ncol(mat.tmp))
-names(count.sup) = paste("p",colnames(mat.tmp),sep=".")
-
-niter = 5000
-for(i in 1:niter){
-    mat.app.alea <- data.frame(mat.tmp, as.factor(sample(type)))
-    colnames(mat.app.alea) <- c(paste("p",colnames(mat.tmp),sep="."), "PR.type")
-    rf.fit.alea <- randomForest(PR.type~., data = mat.app.alea, ntree = 150, ntry=90, importance=T)
-    imp.alea <- importance(rf.fit.alea, scale=T)[,"MeanDecreaseAccuracy"]
-    diff.imp <- imp.alea - imp
-    count.sup[which(diff.imp>0)] = count.sup[which(diff.imp>0)]+1
-}
-
-count.sup / niter
-length(which(count.sup<0.05))
-```
 
 
 
@@ -820,8 +792,8 @@ On regarde dans combien de structures de PR1 ses résidus sont impliqués dans l
 Il faut différentier les chaînes A et B, car trois structures de PR1 n'ont pas de chaîne B.
 
 ```{r}
-resA.1 <- intersect(res.conserv.PR1, colnames(MatricePR1)[grep("_A", colnames(MatricePR1))])
-resB.1 <- intersect(res.conserv.PR1, colnames(MatricePR1)[grep("_B", colnames(MatricePR1))])
+resA.1 <-colnames(MatricePR1)[grep("_A", colnames(MatricePR1))]
+resB.1 <- colnames(MatricePR1)[grep("_B", colnames(MatricePR1))]
 
 pourc.PR1 <- round(c(occ.PR1[resA.1] / nrow(MatricePR1),
                      occ.PR1[resB.1] / (nrow(MatricePR1)-3))*100,2)
@@ -1079,7 +1051,7 @@ occ.PR2[res.conserv.PR2]
 On calcule le pourcentage de structures de PR2 contenant ces résidus dans le packing
 
 ```{r}
-pourc.PR2 <- round(occ.PR2[res.conserv.PR2] / nrow(MatricePR2)*100,2)
+pourc.PR2 <- round(occ.PR2/ nrow(MatricePR2)*100,2)
 barplot(pourc.PR2, las=2, ylab="% de structures avec le res dans packing")
 ```
 
@@ -1318,6 +1290,123 @@ tmp.occ
 
 ## différence des résidus impliqués dans le packing chez PR1 et PR2
 
+
+##Calcul les différences de pourcentage chez PR1 et PR2
+
+
+Ce sont ces résidus que l'on a conservé pour le papier RMSD
+```{r}
+diff.purc = pourc.PR1 - pourc.PR2
+pos.ord.sel2 <- names(which(sort(abs(diff.purc))>60))
+barplot(abs(diff.purc[pos.ord.sel2]),las=2)
+```
+
+Il y a `r length(pos.ord.sel2)` résidus qui sont impliqués dans le packing spécifiquement chez une PR
+
+Pour chaque résidu, on regarde : 
+
+* Nombre de structures de PR1 et PR2 avec ces résidus dans le packing
+* la localisation de ces résidus dans la structure
+* le type d'atomes 
+* si c'est un résidu muté
+
+
+
+Détermine si les résidus sont mutés
+```{r}
+mut.diff11 <- rep("no", length = length(pos.ord.sel2))
+names(mut.diff11) <- pos.ord.sel2
+mut.diff11[intersect(res.muT, pos.ord.sel2)] = "yes"
+```
+
+
+```{r}
+tmp.occ <- data.frame(pos.ord.sel2, 
+                      occ.PR1[pos.ord.sel2], 
+                      occ.PR2[pos.ord.sel2],
+                      regionV[pos.ord.sel2], 
+                      t(matrice3PR1[,pos.ord.sel2]),
+                      t(matrice3PR2[,pos.ord.sel2]),
+                      mut.diff11
+                      )
+colnames(tmp.occ) <- c("residues", "PR1.Occ", "PR2.Occ", "loc", 
+                       "BB.PR1", "SC.PR1",
+                       "BB.PR2", "SC.PR2", "mutation")
+tmp.occ
+```
+
+
+
+Pour le papier, il faut travailler sans les apo
+
+* supprime les apo
+
+```{r}
+apo.ind.PR1 <- c(7, 1, 13)
+MatricePR1.holo <- MatricePR1[-apo.ind.PR1,]
+
+occ.PR1.apo <- apply(MatricePR1.holo,2,sum)
+pourc.PR1.apo <- occ.PR1.apo/ nrow(MatricePR1.holo)
+
+
+apo.ind.PR2 <- 3
+MatricePR2.holo <- MatricePR2[-apo.ind.PR2,]
+
+occ.PR2.apo <- apply(MatricePR2.holo,2,sum)
+pourc.PR2.apo <- occ.PR2.apo/ nrow(MatricePR2.holo)
+```
+
+
+```{r}
+diff.purc = pourc.PR1.apo - pourc.PR2.apo
+hist(diff.purc)
+pos.ord.sel2 <- names(which(sort(abs(diff.purc))>0.6))
+barplot(abs(diff.purc[pos.ord.sel2]),las=2)
+```
+
+
+```{r}
+pourc.PR1.apo[pos.ord.sel2]
+```
+
+
+
+Il y a `r length(pos.ord.sel2)` résidus qui sont impliqués dans le packing spécifiquement chez une PR
+
+Pour chaque résidu, on regarde : 
+
+* Nombre de structures de PR1 et PR2 avec ces résidus dans le packing
+* la localisation de ces résidus dans la structure
+* le type d'atomes 
+* si c'est un résidu muté
+
+
+
+Détermine si les résidus sont mutés
+```{r}
+mut.diff11 <- rep("no", length = length(pos.ord.sel2))
+names(mut.diff11) <- pos.ord.sel2
+mut.diff11[intersect(res.muT, pos.ord.sel2)] = "yes"
+```
+
+
+```{r}
+tmp.occ <- data.frame(pos.ord.sel2, 
+                      occ.PR1[pos.ord.sel2], 
+                      occ.PR2[pos.ord.sel2],
+                      regionV[pos.ord.sel2], 
+                      t(matrice3PR1[,pos.ord.sel2]),
+                      t(matrice3PR2[,pos.ord.sel2]),
+                      mut.diff11
+                      )
+colnames(tmp.occ) <- c("residues", "PR1.Occ", "PR2.Occ", "loc", 
+                       "BB.PR1", "SC.PR1",
+                       "BB.PR2", "SC.PR2", "mutation")
+tmp.occ
+```
+
+
+
 ### résidus conservés chez PR1 et pas chez PR2
 ```{r}
 consvPR1.NotinPR2 <- setdiff(res.conserv.PR1, res.conserv.PR2)
@@ -1430,6 +1519,155 @@ cor(matriceStruct["NbStructinPC.PR1",], matriceStruct["NbStructinPC.PR2",])
 ```
 
 
+
+### Identification des résidus de packing spécifiques chez PR1 et PR2 par une approche de Random forest
+
+```{r}
+#regarde s'il y a des variables avec variance nulle
+v.var <- apply(matrice[-27:-29,],2,var)
+
+var.supp <- which(v.var ==0)
+
+if(length(var.supp)!=0){
+  mat.tmp <- matrice[-27:-29,-var.supp]
+}else{
+  mat.tmp <- matrice[-27:-29,-var.supp]
+}
+
+dim(mat.tmp)
+mat.app <- data.frame(mat.tmp, as.factor(type[rownames(matrice)]))
+colnames(mat.app) <- c(paste("p",colnames(mat.tmp),sep="."), "PR.type")
+
+rf.fit <- randomForest(PR.type~., data = mat.app)
+plot(rf.fit)
+
+
+v.err <-  NULL
+v.mtry <- c(3,6, 12, 24, 48, 84, 150)
+for(i in v.mtry){
+    set.seed(123)
+    rf.fit <- rf.fit <- randomForest(PR.type~., data = mat.app, ntree = 250, mtry=i)
+    v.err <- c(v.err, rf.fit$err.rate[250,1])
+}
+
+plot(v.mtry, v.err, type ="b", xlab="mtry values", ylab="taux d'erreur", xaxt="n")
+axis(1, at=v.mtry, labels=v.mtry, las=2)
+
+
+
+
+v.err <-  NULL
+v.mtry <- seq(50,150,by=10)
+for(i in v.mtry){
+    set.seed(123)
+    rf.fit <- rf.fit <- randomForest(PR.type~., data = mat.app, ntree = 250, mtry=i)
+    v.err <- c(v.err, rf.fit$err.rate[250,1])
+}
+
+plot(v.mtry, v.err, type ="b", xlab="mtry values", ylab="taux d'erreur", xaxt="n")
+axis(1, at=v.mtry, labels=v.mtry, las=2)
+
+
+
+
+rf.fit <- randomForest(PR.type~., data = mat.app, ntree = 150, ntry=90, importance=T)
+print(rf.fit)
+
+
+imp<- importance(rf.fit, scale=T)[,"MeanDecreaseAccuracy"]
+varImpPlot(rf.fit, type=1)
+
+(var.sel <- names(which(imp>2)))
+```
+
+```{r}
+imp.500RF <- rep(0,length = (ncol(mat.app)-1))
+names(imp.500RF) <- colnames(mat.app)[-ncol(mat.app)]
+
+matImp <- matrix(NA, nrow=500, ncol = length(imp.500RF))
+colnames(matImp) = names(imp.500RF)
+
+for (n in 1:500){
+  rf.fit.tmp <- randomForest(PR.type~., data = mat.app, ntree = 150, ntry=90, importance=T)
+  imp<- importance(rf.fit.tmp, scale=T)[,"MeanDecreaseAccuracy"]
+  matImp[n,names(imp)] = imp
+  imp.500RF[names(which(imp>0))] = imp.500RF[names(which(imp>0))]+1
+}
+
+
+
+barplot(sort(imp.500RF), las=2)
+
+nn = names(sort(imp.500RF))
+
+boxplot(matImp[,nn])
+
+mean.VImp = sort(apply(matImp,2,mean))
+hist(mean.VImp)
+
+
+val.selImp1 <- names(which(mean.VImp>2))
+length(val.selImp1)
+
+
+boxplot(matImp[,val.selImp1],las=2)
+
+
+barplot(imp.500RF[val.selImp1], las=2)
+summary(imp.500RF[val.selImp1]/500)
+```
+
+
+
+
+```{r}
+
+count.sup <- rep(0, length = ncol(mat.tmp))
+names(count.sup) = paste("p",colnames(mat.tmp),sep=".")
+
+niter = 10000
+for(i in 1:niter){
+    mat.app.alea <- data.frame(mat.tmp, as.factor(sample(type)))
+    colnames(mat.app.alea) <- c(paste("p",colnames(mat.tmp),sep="."), "PR.type")
+    rf.fit.alea <- randomForest(PR.type~., data = mat.app.alea, ntree = 150, ntry=90, importance=T)
+    imp.alea <- importance(rf.fit.alea, scale=T)[,"MeanDecreaseAccuracy"]
+    diff.imp <- imp.alea - imp
+    count.sup[which(diff.imp>0)] = count.sup[which(diff.imp>0)]+1
+}
+
+pval <- count.sup / niter
+length(which(pval<0.05/length(count.sup)))
+
+(var.sel.pval <- which(pval<0.05/length(count.sup)))
+
+```
+
+
+caractérisation de ces positions
+
+Détermine si les résidus sont mutés
+```{r}
+var.sel <- gsub("p.","",var.sel)
+mut.diff <- rep("no", length = length(var.sel))
+names(mut.diff) <- var.sel
+mut.diff[intersect(res.muT, var.sel)] = "yes"
+```
+
+
+```{r}
+tmp.occ <- data.frame(var.sel, 
+                      occ.PR1[var.sel], 
+                      occ.PR2[var.sel],
+                      regionV[var.sel], 
+                      t(matrice3PR1[,var.sel]),
+                      t(matrice3PR2[,var.sel]),
+                      mut.diff
+                      )
+colnames(tmp.occ) <- c("residues", "PR1.Occ", "PR2.Occ", "loc", 
+                       "BB.PR1", "SC.PR1",
+                       "BB.PR2", "SC.PR2", "mutation")
+tmp.occ
+```
 
 
 
