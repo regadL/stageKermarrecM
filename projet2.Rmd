@@ -273,13 +273,15 @@ Les fichiers des ligands se trouvent dans cet exemple dans le répertoire PDB/Li
 ```{r matAllLig, echo = TRUE, eval=FALSE}
 matAllLig = NULL
 
-for (i in dir("data/ligands_PR1_pdb_cleaned_file_ATOM")){
+for (i in dir("data/ligands_pdb_cleaned_file_ATOM")){
   codePDB = unlist(strsplit(i,"_"))[1]
-  fileLig = read.table(paste("data/ligands_PR1_pdb_cleaned_file_ATOM",i,sep="/"))
+  fileLig = read.table(paste("data/ligands_pdb_cleaned_file_ATOM",i,sep="/"))
   matAdd = data.frame(fileLig, rep(codePDB, length=nrow(fileLig)))
   matAllLig = rbind(matAllLig,matAdd )
 }
+dim(matAllLig)
 
+table(matAllLig[,13])
 ```
 
 
@@ -303,7 +305,7 @@ Pour les différents seuils :
 Le meilleur seuil est le plus grand seuil pour lequel il y a 0 protéine qui a au moins deux atomes dans un même ligand
 
 ```{r identifSeuil, echo=TRUE, eval=FALSE}
-for (HS in seq(0.7,1.2,by=0.0005)){
+for (HS in seq(0.8,2,by=0.005)){
   groupeAt = cutree(hc, h=HS)
   matAllLig.tmp = data.frame(matAllLig, groupeAt)
   tc = table(matAllLig.tmp[,13], matAllLig.tmp[,14])
@@ -319,7 +321,7 @@ tc[,46]
 
 * étape 4 : Détermine les groupes avec le seuil choisi
 ```{r atGrp, echo=TRUE, eval=FALSE}
-seuil = 0.114
+seuil = 0.805
 groupeAt = cutree(hc, h=seuil)
 length(unique(groupeAt))
 ```
